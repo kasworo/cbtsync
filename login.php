@@ -2,20 +2,19 @@
 session_start();
 include "dbfunction.php";
 $error = false;
-isithpel();
-if (isset($_COOKIE['id']) && isset($_COOKIE['key'])) {
+if (isset($_COOKIE['pst']) && isset($_COOKIE['uji'])) {
     $pwd = $_COOKIE['key'];
     $keys = array(
-        'username' => $_COOKIE['id']
+        'idsiswa' => $_COOKIE['pst']
     );
-    $data = viewdata('tbuser', $keys)[0];
+    $data = viewdata('tbpeserta', $keys)[0];
     if ($pwd === hash('sha256', $data['passwd'])) {
         $_SESSION['login'] = true;
     }
 }
 
 if (isset($_SESSION['login'])) {
-    header("Location: index.php?p=dashboard");
+    header("Location: index.php?p=conf");
     exit;
 }
 
@@ -23,22 +22,46 @@ if (isset($_POST['login'])) {
     $user = $conn->real_escape_string($_POST['user']);
     $pass = $_POST['pass'];
     $keys = array(
-        'username' => $user
+        'nmpeserta' => $user
     );
-    $cekuser = cekdata('tbuser', $keys);
+    $cekuser = cekdata('tbpeserta', $keys);
     if ($cekuser === 1) {
-        $data = viewdata('tbuser', $keys)[0];
-        if (password_verify($pass, $data['passwd'])) {
+        $data = viewdata('tbpeserta', $keys)[0];
+        if ($data['passwd'] == $pass &&  $data['aktif'] === '1') {
             $_SESSION['login'] = true;
-            setcookie('id', $data['username'], time() + 3600);
+            setcookie('pst', $data['idsiswa']); //, time() + 3600);
             if (isset($_POST['ingat'])) {
-                setcookie('key', hash('sha256', $data['passwd']), time() + 3600);
+                setcookie('key', hash('sha256', $data['passwd'])); //, time() + 3600);
             }
-            header("Location:index.php?p=dashboard");
+            header("Location:index.php?p=conf");
             exit;
+        }
+    } else {
+        $sqlu = "SELECT us.username, ps.idsiswa, us.passwd, us.aktif FROM tbuser us INNER JOIN tbpeserta ps ON ps.nisn=us.username WHERE us.username='$user'";
+        $cekdata = cquery($sqlu);
+        if ($cekdata > 0) {
+            $data = vquery($sqlu)[0];
+            if ($data['passwd'] == $pass &&  $data['aktif'] === '1') {
+                $_SESSION['login'] = true;
+                setcookie('pst', $data['idsiswa']); //, time() + 3600);
+                if (isset($_POST['ingat'])) {
+                    setcookie('key', hash('sha256', $data['passwd'])); //, time() + 3600);
+                }
+                header("Location:index.php?p=conf");
+                exit;
+            }
         }
     }
     $error = true;
+}
+$qujian = "SELECT nmtes, desthpel FROM tbujian u INNER JOIN tbtes USING(idtes) INNER JOIN tbthpel USING(idthpel) WHERE u.status='1'";
+if (cquery($qujian) > 0) {
+    $du = vquery($qujian)[0];
+    $periode = $du['desthpel'];
+    $nmujian = $du['nmtes'];
+} else {
+    $periode = '';
+    $nmujian = '';
 }
 ?>
 <!DOCTYPE html>
@@ -60,13 +83,16 @@ if (isset($_POST['login'])) {
 <body class="hold-transition login-page" style="background:url(assets/img/boxed-bg.png)">
     <div class="login-box">
         <div class="login-logo">
-            <b>Aplikasi NewCBT</b><br />
-            <p style="font-size:16pt"><em>(New Computerized Based Test)</em></p>
+            <span style="color:#8c0a0a;font-size:18pt;font-weight:bold">Selamat Datang Peserta
+                <br />
+                <p style="font-size:14pt;font-weight:bold"><?php echo $nmujian . '<br/>' . $periode; ?> </p>
+            </span>
         </div>
         <form action="" method="post" id="FrmLogin">
             <div class="card">
                 <div class="card-body login-card-body">
-                    <p class="login-box-msg">Selamat Datang<br />Silahkan Login Terlebih Dahulu</p>
+                    <p class="login-box-msg">Silahkan Login Menggunakan <br />Username dan Password<br />Yang Sudah
+                        Diberikan</p>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" id="user" name="user" placeholder="Username">
                         <div class="input-group-append">

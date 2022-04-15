@@ -1,0 +1,90 @@
+input[type="radio"] {opacity:0.2;  position:absolute;}  /*left:-10000;*/
+input[type="radio"] + label {cursor: pointer;}
+.cc-selector input {margin-left:0px; padding:0; -webkit-appearance:none; -moz-appearance:none; appearance:none;}
+.A{background-image:url(assets/img/A.png);padding-bottom:10;}
+.B{background-image:url(assets/img/B.png);padding-bottom:10;}
+.C{background-image:url(assets/img/C.png);padding-bottom:10;}
+.D{background-image:url(assets/img/D.png);padding-bottom:10;}
+.E{background-image:url(assets/img/E.png);padding-bottom:10;}
+.F{background-image:url(assets/img/F.png);padding-bottom:10;}
+.G{background-image:url(assets/img/G.png);padding-bottom:10;}
+.H{background-image:url(assets/img/H.png);padding-bottom:10;}
+.I{background-image:url(assets/img/I.png);padding-bottom:10;}
+.J{background-image:url(assets/img/J.png);padding-bottom:10;}
+.piljwb {margin-left:0; border-radius: 30px; border-style:solid; border-color:#999; list-style:none;}
+.cc-selector input:active +.drinkcard-cc {opacity: .9;}
+.cc-selector input:checked +.drinkcard-cc {background-image:url(assets/img/pilih.png); -webkit-filter: none; -moz-filter: none; filter: none;}
+.drinkcard-cc {cursor:pointer; background-size:contain; background-repeat:no-repeat; display:inline-block; width:20px;height:20px;;}
+.drinkcard-cc:hover {-webkit-filter: brightness(1.2) grayscale(.5) opacity(.9); -moz-filter: brightness(1.2) grayscale(.5) opacity(.9);    filter: brightness(1.2) grayscale(.5) opacity(.9);} 
+
+@media only screen and (max-width: 420px) {
+	#lembaran{
+		padding:15px;
+		margin-left:auto;
+		margin-right:auto;
+		top:0px; 
+		font-family: sans-serif;
+		font-size: 8pt;
+		background-color:#fff;
+		text-align: justify;	
+		/*height:auto;*/
+		
+	}	
+	#lembaransoal{
+		padding:auto;
+		font-size: 10pt;
+		font-family: sans-serif;  
+		width:auto;
+		height: auto;
+		border-color:rgb(17, 1, 48);
+		border-style:solid;
+		border-width: 2.35px;
+		border-radius: 10px;
+	}	
+	.jawab	{
+		font-size: 10pt;
+	}
+	#jawaban	{
+		padding-bottom:10px;
+		font-size: 10pt;
+		border:solid;
+		border-color:#CCC;
+		}	
+	.pilihanjawaban	{
+		font-size: 10pt;
+	}
+}
+#lembaran{
+	padding:15px;
+	margin-left:auto;
+	margin-right:auto;
+	top:0px; 
+  	font-family: Times;
+	font-size: 12pt;
+	background-color:#fff;
+	text-align: justify;	
+	/*height:auto;*/
+	
+}	
+#lembaransoal{
+	padding:auto;
+  	font-size: 12pt;  
+	width:auto;
+	height: auto;
+	border-color:rgb(17, 1, 48);
+	border-style:solid;
+	border-width: 2.35px;
+	border-radius: 10px;
+}	
+.jawab	{
+	font-size: 12pt;
+}
+#jawaban	{
+	padding-bottom:10px;
+	font-size: 12pt;
+	border:solid;
+	border-color:#CCC;
+	}	
+.pilihanjawaban	{
+	font-size: 12pt;
+}
