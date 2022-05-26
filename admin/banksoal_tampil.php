@@ -260,22 +260,6 @@
 
 	})
 
-	$("#btnAktivasi").click(function() {
-		let idb = $("#idsoal").val();
-		let rmb = $("#rmbuji").val();
-		let jdw = $("#jduji").val();
-		let soal = $("#soal").val();
-		let mode = $("#mode").val();
-		let opsi = $("#opsi").val();
-		$.ajax({
-			url: "banksoal_simpan.php",
-			type: 'POST',
-			data: "aksi=2&id=" + idb + "&rmb=" + rmb + "&jdw=" + jdw + "&soal=" + soal + "&mode=" + mode + "&opsi=" + opsi,
-			success: function(data) {
-				toastr.success(data);
-			}
-		})
-	})
 	$(".btnIsi").click(function() {
 		let id = $(this).data('id');
 		window.location.href = 'index.php?p=isisoal&id=' + id;

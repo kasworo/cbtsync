@@ -8,6 +8,7 @@ function getisiopsi($idbtr)
         $butir[] = array(
             'idopsi' => $row['idopsi'],
             'opsi' => $row['opsi'],
+            'opsialt' => $row['opsialt'],
             'benar' => $row['benar']
         );
     }
@@ -35,9 +36,11 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'load') :
 
         <style type="text/css">
             .arab {
-                font-family: "Amiri Quran";
+                text-align: right;
+                line-height: 45px;
+                font-family: "LPMQ Isep Misbah";
                 font-size: 18pt;
-                src: url('../assets/webfonts/amiri.ttf');
+                src: url('../assets/webfonts/lpmq.ttf');
             }
 
             input[type="checkbox"] {
@@ -132,38 +135,91 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'load') :
                                 <a href="index.php?p=editsoal&idb=<?php echo $so['idbutir']; ?>" style="font-family: sans-serif;font-size:10pt">Edit</a> | <a href="#" style="font-family: sans-serif;font-size:10pt">Hapus</a>
                             </div>
                             <div class="form-group" style="padding-left:5px">
-                                <table cellpadding="5px auto" cellspacing="2px">
-                                    <?php foreach ($getopsi as $id => $op) : ?>
-                                        <tr valign="top">
-                                            <?php
-                                            if ($id == 0) {
-                                                $val = 'A';
-                                            } else if ($id == 1) {
-                                                $val = 'B';
-                                            } else if ($id == 2) {
-                                                $val = 'C';
-                                            } else if ($id == 3) {
-                                                $val = 'D';
-                                            } else {
-                                                $val = 'E';
-                                            }
-                                            ?>
-                                            <td valign="top">
-                                                <div class="cc-selector">
-                                                    <input id="<?php echo $val; ?>" class="opsi" type="radio" name="opsijwb" data-id="<?php echo $so['idbutir']; ?>" value="<?php echo $op['idopsi']; ?>" <?php echo ($op['benar'] == '1') ? 'checked' : ''; ?>>
-                                                    <label class="drinkcard-cc <?php echo $val; ?>" for="<?php echo $val; ?>"></label>
-                                                </div>
-                                            </td>
-                                            <td valign="top" for="<?php echo $val; ?>">
+                                <?php
+                                if ($so['headeropsi'] == NULL) :
+                                ?>
+                                    <table cellpadding="5px auto" cellspacing="2px">
+                                        <?php foreach ($getopsi as $id => $op) : ?>
+                                            <tr valign="top">
                                                 <?php
-                                                $ops = str_replace("/cbt/pictures/", "pictures/", $op['opsi']);
-                                                $opsi = str_replace("<img src=", "<img class='img img-fluid img-responsive' src=", $ops);
-                                                echo $opsi;
+                                                if ($id == 0) {
+                                                    $val = 'A';
+                                                } else if ($id == 1) {
+                                                    $val = 'B';
+                                                } else if ($id == 2) {
+                                                    $val = 'C';
+                                                } else if ($id == 3) {
+                                                    $val = 'D';
+                                                } else {
+                                                    $val = 'E';
+                                                }
                                                 ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach ?>
-                                </table>
+                                                <td valign="top">
+                                                    <div class="cc-selector">
+                                                        <input id="<?php echo $val; ?>" class="opsi" type="radio" name="opsijwb" data-id="<?php echo $so['idbutir']; ?>" value="<?php echo $op['idopsi']; ?>" <?php echo ($op['benar'] == '1') ? 'checked' : ''; ?>>
+                                                        <label class="drinkcard-cc <?php echo $val; ?>" for="<?php echo $val; ?>"></label>
+                                                    </div>
+                                                </td>
+                                                <td valign="top" for="<?php echo $val; ?>">
+                                                    <?php
+                                                    $ops = str_replace("/cbt/pictures/", "pictures/", $op['opsi']);
+                                                    $opsi = str_replace("<img src=", "<img class='img img-fluid img-responsive' src=", $ops);
+                                                    echo $opsi;
+                                                    ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach ?>
+                                    </table>
+                                <?php else :
+                                    $hdr = explode(",", $so['headeropsi']);
+                                ?>
+                                    <table class="table table-bordered table-sm table-condensed">
+                                        <thead>
+                                            <th width="7.5%" style="text-align:center">Pilihan</th>
+                                            <th style="text-align:center"><?php echo $hdr[0]; ?></th>
+                                            <th style="text-align:center"><?php echo $hdr[1]; ?></th>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($getopsi as $id => $op) : ?>
+                                                <tr valign="top">
+                                                    <?php
+                                                    if ($id == 0) {
+                                                        $val = 'A';
+                                                    } else if ($id == 1) {
+                                                        $val = 'B';
+                                                    } else if ($id == 2) {
+                                                        $val = 'C';
+                                                    } else if ($id == 3) {
+                                                        $val = 'D';
+                                                    } else {
+                                                        $val = 'E';
+                                                    }
+                                                    ?>
+                                                    <td valign="top" style="text-align:center">
+                                                        <div class="cc-selector">
+                                                            <input id="<?php echo $val; ?>" class="opsi" type="radio" name="opsijwb" data-id="<?php echo $so['idbutir']; ?>" value="<?php echo $op['idopsi']; ?>" <?php echo ($op['benar'] == '1') ? 'checked' : ''; ?>>
+                                                            <label class="drinkcard-cc <?php echo $val; ?>" for="<?php echo $val; ?>"></label>
+                                                        </div>
+                                                    </td>
+                                                    <td valign="top" for="<?php echo $val; ?>">
+                                                        <?php
+                                                        $ops = str_replace("../pictures/", "pictures/", $op['opsi']);
+                                                        $opsi = str_replace("<img src=", "<img class='img img-fluid img-responsive' src=", $ops);
+                                                        echo $opsi;
+                                                        ?>
+                                                    </td>
+                                                    <td valign="top" for="<?php echo $val; ?>">
+                                                        <?php
+                                                        $opsalt = str_replace("../pictures/", "pictures/", $op['opsialt']);
+                                                        $opsialt = str_replace("<img src=", "<img class='img img-fluid img-responsive' src=", $opsalt);
+                                                        echo $opsialt;
+                                                        ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach ?>
+                                        </tbody>
+                                    </table>
+                                <?php endif ?>
                             </div>
                         <?php endif ?>
 
@@ -253,75 +309,142 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'load') :
                                 </style>
                                 <div class="table-responsive-sm">
                                     <table class="table table-condensed table-striped table-sm table-bordered" width="100%">
-                                        <thead>
-                                            <?php if (empty($so['headeropsi'])) : ?>
-                                                <th style="text-align:center;">Pernyataan</th>
-                                                <th style="text-align:center;width:12.5%">Benar</th>
-                                                <th style="text-align:center;width:12.5%">Salah</th>
-                                            <?php else :
-                                                $hdr = explode(",", $so['headeropsi']);
 
-                                            ?>
+                                        <?php
+                                        $hdr = explode(",", $so['headeropsi']);
+                                        if (count($hdr) == 3) :
+
+                                        ?>
+                                            <thead>
                                                 <th style="text-align:center;"><?php echo $hdr[0]; ?></th>
                                                 <th style="text-align:center;width:12.5%"><?php echo $hdr[1]; ?></th>
                                                 <th style="text-align:center;width:12.5%"><?php echo $hdr[2]; ?></th>
-                                            <?php endif ?>
+                                            </thead>
+                                            <?php foreach ($getopsi as $id => $op) : ?>
+                                                <tr>
+                                                    <td valign="top">
+                                                        <?php
+                                                        $ops = str_replace("/cbt/pictures/", "pictures/", $op['opsi']);
+                                                        $opsi = str_replace("<img src=", "<img class='img img-fluid img-responsive' src=", $ops);
+                                                        echo $opsi;
+                                                        ?>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <input id="BtnBenar<?php echo $op['idopsi']; ?>" type="radio" name="opsijwb<?php echo $op['idopsi']; ?>" value="1" <?php echo ($op['benar'] == '1') ? "checked" : ""; ?>>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <input id="BtnSalah<?php echo $op['idopsi']; ?>" type="radio" name="opsijwb<?php echo $op['idopsi']; ?>" value="0" <?php echo ($op['benar'] == '0') ? "checked" : ""; ?>>
+                                                    </td>
+                                                </tr>
+                                                <script type="text/javascript">
+                                                    $("#BtnBenar<?php echo $op['idopsi']; ?>").click(function() {
+                                                        alert($(this).val());
+                                                        let data = new FormData()
+                                                        data.append('idsoal', "<?php echo $so['idbutir']; ?>")
+                                                        data.append('idopsi', "<?php echo $op['idopsi']; ?>")
+                                                        data.append('benar', $(this).val())
+                                                        data.append('aksi', 'isikunci')
+                                                        $.ajax({
+                                                            type: "POST",
+                                                            url: "isisoal_simpan.php",
+                                                            data: data,
+                                                            processData: false,
+                                                            contentType: false,
+                                                            cache: false,
+                                                            timeout: 8000,
+                                                            success: function(respons) {}
+                                                        })
+                                                    })
+                                                    $("#BtnSalah<?php echo $op['idopsi']; ?>").click(function() {
+                                                        let data = new FormData()
+                                                        data.append('idsoal', "<?php echo $so['idbutir']; ?>")
+                                                        data.append('idopsi', "<?php echo $op['idopsi']; ?>")
+                                                        data.append('benar', $(this).val())
+                                                        data.append('aksi', 'isikunci')
+                                                        $.ajax({
+                                                            type: "POST",
+                                                            url: "isisoal_simpan.php",
+                                                            data: data,
+                                                            processData: false,
+                                                            contentType: false,
+                                                            cache: false,
+                                                            timeout: 8000,
+                                                            success: function(respons) {}
+                                                        })
+                                                    })
+                                                </script>
+                                            <?php endforeach ?>
+                                        <?php endif ?>
+                                        <?php if (count($hdr) == 4) : ?>
+                                            <thead>
+                                                <th style="text-align:center;"><?php echo $hdr[0]; ?></th>
+                                                <th style="text-align:center;width:22.5%"><?php echo $hdr[1]; ?></th>
+                                                <th style="text-align:center;width:12.5%"><?php echo $hdr[2]; ?></th>
+                                                <th style="text-align:center;width:12.5%"><?php echo $hdr[3]; ?></th>
+                                            </thead>
+                                            <?php foreach ($getopsi as $id => $op) : ?>
+                                                <tr>
+                                                    <td valign="top">
+                                                        <?php
+                                                        $ops = str_replace("/cbt/pictures/", "pictures/", $op['opsi']);
+                                                        $opsi = str_replace("<img src=", "<img class='img img-fluid img-responsive' src=", $ops);
+                                                        echo $opsi;
+                                                        ?>
+                                                    </td>
+                                                    <td valign="top">
+                                                        <?php
+                                                        $opsalt = str_replace("/cbt/pictures/", "pictures/", $op['opsialt']);
+                                                        $opsialt = str_replace("<img src=", "<img class='img img-fluid img-responsive' src=", $opsalt);
+                                                        echo $opsialt;
+                                                        ?>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <input id="BtnBenar<?php echo $op['idopsi']; ?>" type="radio" name="opsijwb<?php echo $op['idopsi']; ?>" value="1" <?php echo ($op['benar'] == '1') ? "checked" : ""; ?>>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <input id="BtnSalah<?php echo $op['idopsi']; ?>" type="radio" name="opsijwb<?php echo $op['idopsi']; ?>" value="0" <?php echo ($op['benar'] == '0') ? "checked" : ""; ?>>
+                                                    </td>
+                                                </tr>
+                                                <script type="text/javascript">
+                                                    $("#BtnBenar<?php echo $op['idopsi']; ?>").click(function() {
+                                                        alert($(this).val());
+                                                        let data = new FormData()
+                                                        data.append('idsoal', "<?php echo $so['idbutir']; ?>")
+                                                        data.append('idopsi', "<?php echo $op['idopsi']; ?>")
+                                                        data.append('benar', $(this).val())
+                                                        data.append('aksi', 'isikunci')
+                                                        $.ajax({
+                                                            type: "POST",
+                                                            url: "isisoal_simpan.php",
+                                                            data: data,
+                                                            processData: false,
+                                                            contentType: false,
+                                                            cache: false,
+                                                            timeout: 8000,
+                                                            success: function(respons) {}
+                                                        })
+                                                    })
+                                                    $("#BtnSalah<?php echo $op['idopsi']; ?>").click(function() {
+                                                        let data = new FormData()
+                                                        data.append('idsoal', "<?php echo $so['idbutir']; ?>")
+                                                        data.append('idopsi', "<?php echo $op['idopsi']; ?>")
+                                                        data.append('benar', $(this).val())
+                                                        data.append('aksi', 'isikunci')
+                                                        $.ajax({
+                                                            type: "POST",
+                                                            url: "isisoal_simpan.php",
+                                                            data: data,
+                                                            processData: false,
+                                                            contentType: false,
+                                                            cache: false,
+                                                            timeout: 8000,
+                                                            success: function(respons) {}
+                                                        })
+                                                    })
+                                                </script>
+                                            <?php endforeach ?>
+                                        <?php endif ?>
 
-                                        </thead>
-                                        <?php foreach ($getopsi as $id => $op) : ?>
-                                            <tr>
-                                                <td valign="top">
-                                                    <?php
-                                                    $ops = str_replace("/cbt/pictures/", "pictures/", $op['opsi']);
-                                                    $opsi = str_replace("<img src=", "<img class='img img-fluid img-responsive' src=", $ops);
-                                                    echo $opsi;
-                                                    ?>
-                                                </td>
-                                                <td style="text-align:center">
-                                                    <input id="BtnBenar<?php echo $op['idopsi']; ?>" type="radio" name="opsijwb<?php echo $op['idopsi']; ?>" value="1" <?php echo ($op['benar'] == '1') ? "checked" : ""; ?>>
-                                                </td>
-                                                <td style="text-align:center">
-                                                    <input id="BtnSalah<?php echo $op['idopsi']; ?>" type="radio" name="opsijwb<?php echo $op['idopsi']; ?>" value="0" <?php echo ($op['benar'] == '0') ? "checked" : ""; ?>>
-                                                </td>
-                                            </tr>
-                                            <script type="text/javascript">
-                                                $("#BtnBenar<?php echo $op['idopsi']; ?>").click(function() {
-                                                    alert($(this).val());
-                                                    let data = new FormData()
-                                                    data.append('idsoal', "<?php echo $so['idbutir']; ?>")
-                                                    data.append('idopsi', "<?php echo $op['idopsi']; ?>")
-                                                    data.append('benar', $(this).val())
-                                                    data.append('aksi', 'isikunci')
-                                                    $.ajax({
-                                                        type: "POST",
-                                                        url: "isisoal_simpan.php",
-                                                        data: data,
-                                                        processData: false,
-                                                        contentType: false,
-                                                        cache: false,
-                                                        timeout: 8000,
-                                                        success: function(respons) {}
-                                                    })
-                                                })
-                                                $("#BtnSalah<?php echo $op['idopsi']; ?>").click(function() {
-                                                    let data = new FormData()
-                                                    data.append('idsoal', "<?php echo $so['idbutir']; ?>")
-                                                    data.append('idopsi', "<?php echo $op['idopsi']; ?>")
-                                                    data.append('benar', $(this).val())
-                                                    data.append('aksi', 'isikunci')
-                                                    $.ajax({
-                                                        type: "POST",
-                                                        url: "isisoal_simpan.php",
-                                                        data: data,
-                                                        processData: false,
-                                                        contentType: false,
-                                                        cache: false,
-                                                        timeout: 8000,
-                                                        success: function(respons) {}
-                                                    })
-                                                })
-                                            </script>
-                                        <?php endforeach ?>
                                     </table>
                                 </div>
                             </div>
@@ -340,6 +463,86 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'load') :
                                 </strong>
                                 <br />
                                 <a href="index.php?p=editsoal&idb=<?php echo $so['idbutir']; ?>" style="font-family: sans-serif;font-size:10pt">Edit</a> | <a href="#" style="font-family: sans-serif;font-size:10pt">Hapus</a>
+                            </div>
+                            <hr />
+                            <div class="form-group row mb-2">
+                                <?php
+                                $linenya = [];
+                                $kanan = [];
+                                $kiri = [];
+                                foreach ($getopsi as $id => $op) {
+                                    $kanan[] = $op['opsialt'];
+                                    $kiri[] = $op['opsi'];
+                                    $linenya[] = array(
+                                        'from' => $op['opsi'],
+                                        'to' => $op['opsialt']
+                                    );
+                                }
+                                $opsikanan = json_encode($kanan);
+                                $opsikiri = json_encode($kiri);
+                                $isilinknya = json_encode($linenya);
+                                ?>
+
+                                <div class="container">
+                                    <link rel="stylesheet" href="../fieldsLinker.css">
+                                    <script src="../fieldsLinker.js"></script>
+                                    <div class="form-group row ml-4" id="original" class="text-center" style="display:block;"></div>
+                                    <div class="form-group row ml-4">
+                                        <button class="btn btn-sm btn-primary" id="simpanhsl">
+                                            <i class="fas fa-save"></i>&nbsp;Simpan
+                                        </button>
+                                        <button class="btn btn-sm btn-danger ml-3" id="hapushsl">
+                                            <i class="fas fa-trash-alt"></i>&nbsp;Hapus
+                                        </button>
+                                    </div>
+                                    <script type="text/javascript">
+                                        $(document).ready(function() {
+                                            let fieldLinks;
+                                            let inputOri;
+                                            inputOri = {
+                                                "localization": {},
+                                                "options": {
+                                                    "associationMode": "oneToOne", // oneToOne,manyToMany
+                                                    "lineStyle": "square-ends",
+                                                    // "buttonErase": "<i class='fas fa-trash-alt'></i> Hapus",
+                                                    "displayMode": "original",
+                                                    "whiteSpace": "normal", //normal,nowrap,pre,pre-wrap,pre-line,break-spaces default => nowrap
+                                                    "mobileClickIt": true
+                                                },
+                                                "Lists": [{
+                                                        //"name": "Columns in files",
+                                                        "list": <?php echo $opsikiri; ?>
+                                                    },
+                                                    {
+                                                        "name": "",
+                                                        "list": <?php echo $opsikanan; ?>
+                                                    }
+                                                ],
+                                                //"existingLinks": [{ "from": "lastName", "to": "last_name" }, { "from": "firstName", "to": "first_name" }, { "from": "role", "to": "jobTitle" }]
+                                                "existingLinks": <?php echo $isilinknya; ?>
+                                            };
+
+
+                                            // $("#simpanhsl").on("click", function() {
+                                            //     let results = fieldLinks.fieldsLinker("getLinks");
+                                            //     let soal = "<?php echo $idsoal; ?>";
+                                            //     datane = JSON.stringify(results["links"])
+                                            //     $.ajax({
+                                            //         type: "POST",
+                                            //         url: "simpan.php",
+                                            //         dataType: "json",
+                                            //         data: {
+                                            //             'aksi': 'simpan',
+                                            //             'soal': soal,
+                                            //             'jawaban': datane
+                                            //         }
+                                            //     });
+                                            // });
+                                            fieldLinks = $("#original").fieldsLinker("init", inputOri);
+
+                                        });
+                                    </script>
+                                </div>
                             </div>
                         <?php endif ?>
 

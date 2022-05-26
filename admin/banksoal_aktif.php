@@ -6,19 +6,20 @@ $sql = "SELECT COUNT(*) as jml FROM tbsoal so INNER JOIN tbstimulus st USING(ids
 $so = vquery($sql)[0];
 if ($so['jml'] > 0) {
     $maks = $so['jml'];
-    $jmlsoal = $maks - 1;
-    $psn = "Diizinkan Hanya " . $jmlsoal . " Dari " . $maks;
+    $psn = "Diizinkan Hanya " . $maks . " Dari " . $maks;
 } else {
     $psn = "Jumlah Soal";
 }
 ?>
 <script type="text/javascript">
-    $("#jduji").change(function() {
-        $("#rmbuji").prop("disabled", false);
-        $("#soal").prop("disabled", false);
-        $("#mode").prop("disabled", false);
-        $("#hasil").prop("disabled", false);
-        $("#opsi").prop("disabled", false);
+    $(document).ready(function() {
+        $("#jduji").change(function() {
+            $("#rmbuji").prop("disabled", false);
+            $("#soal").prop("disabled", false);
+            $("#mode").prop("disabled", false);
+            $("#vhasil").prop("disabled", false);
+            $("#opsi").prop("disabled", false);
+        })
     })
 </script>
 <div class="form-group row mb-2">
@@ -54,7 +55,7 @@ if ($so['jml'] > 0) {
 <div class="form-group row mb-2">
     <input type="hidden" value="<?php echo $maks; ?>" id="jmlsoal">
     <label class="col-sm-4 offset-sm-1">Hasil Tes</label>
-    <select class="form-control form-control-sm col-sm-6" id="hasil" name="hasil" disabled="true">
+    <select class="form-control form-control-sm col-sm-6" id="vhasil" name="vhasil" disabled="true">
         <option value="">..Pilih..</option>
         <option value="1">Ditampilkan</option>
         <option value="0">Tidak Ditampilan</option>

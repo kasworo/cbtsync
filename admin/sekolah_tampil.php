@@ -93,7 +93,7 @@ if ($sk['logoskpd'] == '' || $sk['logoskpd'] == null) {
 	if (file_exists('images/' . $sk['logoskpd'])) {
 		$logoskpd = 'images/' . $sk['logoskpd'];
 	} else {
-		$logoskpd = 'assets/img/tutwuri.png';
+		$logoskpd = '../assets/img/tutwuri.png';
 	}
 }
 

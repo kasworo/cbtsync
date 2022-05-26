@@ -4,7 +4,7 @@ include "dbfunction.php";
 
 function DistribusiSoal($idb, $jml)
 {
-	$sqlstm = "SELECT COUNT(*) as soalstim, idstimulus FROM (SELECT so.idbutir, st.idstimulus FROM tbstimulus st INNER JOIN tbsoal so USING(idstimulus) WHERE st.idbank='$idb' ORDER BY st.idstimulus LIMIT $jml) tbstims GROUP BY idstimulus ORDER BY RAND()";
+	$sqlstm = "SELECT COUNT(*) as soalstim, idstimulus FROM (SELECT so.idbutir, st.idstimulus FROM tbstimulus st INNER JOIN tbsoal so USING(idstimulus) WHERE st.idbank='$idb' ORDER BY RAND() LIMIT $jml) tbstims GROUP BY idstimulus";
 	$dstm = vquery($sqlstm);
 	$keluar = 0;
 	$datasoal = [];
@@ -112,15 +112,17 @@ function BagiSoal($rmb, $jdw)
 
 if ($_POST['aksi'] == 'simpan') {
 	$cek = cekdata('tbbanksoal', array('nmbank' => $_POST['bnk']));
+	$mp = explode('&', $_POST['map']);
 	if ($cek == 0) {
 		$data = array(
 			'idskul' => getskul(),
 			'idkelas' => $_POST['kls'],
-			'idmapel' => $_POST['map'],
+			'idmapel' => $mp[0],
 			'idujian' => $_POST['tes'],
 			'nmbank' => $_POST['bnk'],
 			'tglbuat' => date('Y-m-d'),
-			'idgtk' => $_POST['gtk']
+			'idgtk' => $_POST['gtk'],
+			'deleted' => '0'
 		);
 		if (adddata('tbbanksoal', $data) > 0) {
 			echo '1';
@@ -133,12 +135,16 @@ if ($_POST['aksi'] == 'simpan') {
 }
 
 if ($_POST['aksi'] == 'aktif') {
+	$aktif = editdata('tbjadwal', array('aktif' => '1'), '', array('idjadwal' => $_POST['jdw']));
+	if ($aktif > 0) {
+		$sql = "UPDATE tbjadwal SET aktif='0' WHERE idjadwal<>'$_POST[jdw]' AND aktif='1'";
+		equery($sql);
+	}
 	$keyu = array(
 		'idbank' => $_POST['idb'],
 		'idrombel' => $_POST['rmb'],
 		'idjadwal' => $_POST['jdw']
 	);
-
 	if (cekdata('tbsetingujian', $keyu) > 0) {
 		$data = array(
 			'hasil' => $_POST['hsl'],
@@ -147,6 +153,14 @@ if ($_POST['aksi'] == 'aktif') {
 			'acakopsi' => '1'
 		);
 		$row = editdata('tbsetingujian', $data, '', $keyu);
+		if ($row > 0) {
+			$sql = "DELETE FROM tbjawaban INNER JOIN tbsetingujian su USING(idset) WHERE idbank='$_POST[idb]' AND idrombel='$_POST[rmb]' AND idjadwal='$_POST[jdw]'";
+			$hps = equery($sql);
+			if ($hps > 0) {
+				BagiSoal($_POST['rmb'],  $_POST['jdw']);
+				echo '2';
+			}
+		}
 	} else {
 		$data = array(
 			'idbank' => $_POST['idb'],
@@ -159,6 +173,7 @@ if ($_POST['aksi'] == 'aktif') {
 		);
 		if (adddata('tbsetingujian', $data) > 0) {
 			BagiSoal($_POST['rmb'],  $_POST['jdw']);
+			echo '1';
 		}
 	}
 }

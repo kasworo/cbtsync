@@ -31,64 +31,62 @@
 		</div>
 	</div>
 </div>
-<div class="col-sm-12">
-	<div class="card card-secondary card-outline">
-		<div class="card-header">
-			<h4 class="card-title">Data Kurikulum</h4>
-			<div class="card-tools">
-				<button class="btn btn-success btn-sm" id="btnTambah" data-toggle="modal" data-target="#myAddKurikulum">
-					<i class="fas fa-plus-circle"></i>&nbsp;Tambah
-				</button>
-				<button class="btn btn-info btn-sm" id="btnRefresh">
-					<i class="fas fa-sync-alt"></i>&nbsp;Refresh
-				</button>
-				<button id="hapusall" class="btn btn-danger btn-sm">
-					<i class="fas fa-trash-alt"></i>&nbsp;Hapus
-				</button>
-			</div>
+<div class="card card-secondary card-outline">
+	<div class="card-header">
+		<h4 class="card-title">Data Kurikulum</h4>
+		<div class="card-tools">
+			<button class="btn btn-success btn-sm" id="btnTambah" data-toggle="modal" data-target="#myAddKurikulum">
+				<i class="fas fa-plus-circle"></i>&nbsp;Tambah
+			</button>
+			<button class="btn btn-info btn-sm" id="btnRefresh">
+				<i class="fas fa-sync-alt"></i>&nbsp;Refresh
+			</button>
+			<button id="hapusall" class="btn btn-danger btn-sm">
+				<i class="fas fa-trash-alt"></i>&nbsp;Hapus
+			</button>
 		</div>
-		<div class="card-body">
-			<div class="table-responsive">
-				<table id="tb_kur" class="table table-bordered table-striped table-sm">
-					<thead>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+			<table id="tb_kur" class="table table-bordered table-striped table-sm">
+				<thead>
+					<tr>
+						<th style="text-align: center;width:2.5%">No.</th>
+						<th style="text-align: center;width:12.5%">Kode</th>
+						<th style="text-align: center">Kurikulum</th>
+						<th style="text-align: center">Status</th>
+						<th style="text-align: center;width:20%">Aksi</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					$qk = $conn->query("SELECT*FROM tbkurikulum");
+					$no = 0;
+					while ($m = $qk->fetch_array()) {
+						$no++;
+						if ($m['aktif'] == '1') {
+							$status = 'Aktif';
+						} else {
+							$status = 'Non Aktif';
+						}
+					?>
 						<tr>
-							<th style="text-align: center;width:2.5%">No.</th>
-							<th style="text-align: center;width:12.5%">Kode</th>
-							<th style="text-align: center">Kurikulum</th>
-							<th style="text-align: center">Status</th>
-							<th style="text-align: center;width:20%">Aksi</th>
+							<td style="text-align:center"><?php echo $no . '.'; ?></td>
+							<td style="text-align:center"><?php echo $m['akkur']; ?></td>
+							<td><?php echo $m['nmkur']; ?></td>
+							<td><?php echo $status; ?></td>
+							<td style="text-align: center">
+								<a href="#myAddKurikulum" data-toggle="modal" data-id="<?php echo $m['idkur']; ?>" class="btn btn-xs btn-success btnUpdate">
+									<i class="fas fa-edit"></i>&nbsp;Edit
+								</a>
+								<button data-id="<?php echo $m['idkur']; ?>" class="btn btn-xs btn-danger btnHapus">
+									<i class="fas fa-trash-alt"></i>&nbsp;Hapus
+								</button>
+							</td>
 						</tr>
-					</thead>
-					<tbody>
-						<?php
-						$qk = $conn->query("SELECT*FROM tbkurikulum");
-						$no = 0;
-						while ($m = $qk->fetch_array()) {
-							$no++;
-							if ($m['aktif'] == '1') {
-								$status = 'Aktif';
-							} else {
-								$status = 'Non Aktif';
-							}
-						?>
-							<tr>
-								<td style="text-align:center"><?php echo $no . '.'; ?></td>
-								<td style="text-align:center"><?php echo $m['akkur']; ?></td>
-								<td><?php echo $m['nmkur']; ?></td>
-								<td><?php echo $status; ?></td>
-								<td style="text-align: center">
-									<a href="#myAddKurikulum" data-toggle="modal" data-id="<?php echo $m['idkur']; ?>" class="btn btn-xs btn-success btnUpdate">
-										<i class="fas fa-edit"></i>&nbsp;Edit
-									</a>
-									<button data-id="<?php echo $m['idkur']; ?>" class="btn btn-xs btn-danger btnHapus">
-										<i class="fas fa-trash-alt"></i>&nbsp;Hapus
-									</button>
-								</td>
-							</tr>
-						<?php } ?>
-					</tbody>
-				</table>
-			</div>
+					<?php } ?>
+				</tbody>
+			</table>
 		</div>
 	</div>
 </div>

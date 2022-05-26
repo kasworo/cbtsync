@@ -155,12 +155,24 @@ if ($level == '1') : ?>
 				</a>
 				<ul class="nav nav-treeview">
 					<li class="nav-item">
-						<a href="#myHasilTes" class="nav-link" data-toggle="modal">
+						<a href="#myLaporTes" class="nav-link btnReport" data-toggle="modal" data-id="1">
 							<i class="fas fa-list-alt nav-icon"></i>
 							<p>Hasil Tes</p>
 						</a>
 					</li>
 					<li class="nav-item">
+						<a href="#myLaporTes" class="nav-link btnReport" data-toggle="modal" data-id="2">
+							<i class="fas fa-file-alt nav-icon"></i>
+							<p>Rekap Nilai</p>
+						</a>
+					</li>
+					<li class="nav-item">
+						<a href="#myLaporTes" class="nav-link btnReport" data-toggle="modal" data-id="3">
+							<i class="fas fa-file-pdf nav-icon"></i>
+							<p>Rapor Murni</p>
+						</a>
+					</li>
+					<!-- <li class="nav-item">
 						<a href="index.php?p=ledger" class="nav-link">
 							<i class="far fa-file-pdf nav-icon"></i>
 							<p>Rekap Nilai</p>
@@ -171,7 +183,7 @@ if ($level == '1') : ?>
 							<i class="far fa-file-pdf nav-icon"></i>
 							<p>Rapor Murni</p>
 						</a>
-					</li>
+					</li> -->
 				</ul>
 			</li>
 			<li class="nav-item">

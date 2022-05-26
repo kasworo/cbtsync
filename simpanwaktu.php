@@ -1,7 +1,6 @@
 <?php
 define("BASEPATH", dirname(__FILE__));
 include "dbfunction.php";
-
 $saiki = date('Y-m-d H:i:s');
 $qwk = "SELECT TIME_TO_SEC(timediff('$saiki', logmulai)) as habis, jd.durasi FROM tblogpeserta lp INNER JOIN tbjadwal jd USING(idjadwal) WHERE lp.idjadwal= '$_POST[jdw]' AND idsiswa='$_COOKIE[pst]'";
 $wk = vquery($qwk)[0];

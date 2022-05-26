@@ -1,10 +1,12 @@
 <?php
 session_start();
+include "dbfunction.php";
+
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
     exit;
 }
-include "dbfunction.php";
+
 if (empty($_COOKIE['id'])) {
     header("Location: logout.php");
     exit;
@@ -28,6 +30,7 @@ if (empty($_COOKIE['id'])) {
     } else {
         $navigasi = '';
     }
+
     if ($foto == '' || $foto == null) {
         $fotouser = '../assets/img/avatar.gif';
     } else {
@@ -49,6 +52,7 @@ if (empty($_COOKIE['id'])) {
     $sk = viewdata('tbskul')[0];
     $idskul = $sk['idskul'];
     $nmskul = $sk['nmskul'];
+    $jenjang = $sk['idjenjang'];
 ?>
     <!DOCTYPE html>
     <html>
@@ -77,86 +81,46 @@ if (empty($_COOKIE['id'])) {
     </head>
 
     <body class="sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
-        <div class="modal fade" id="myHasilTes" aria-modal="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Laporan Hasil Tes</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <form action="" method="post">
-                        <div class="modal-body">
-                            <div class="form-group row mb-2 mt-2">
-                                <label class="col-sm-5 offset-sm-1">Pilih Tahun Pelajaran</label>
-                                <select class="form-control form-control-sm col-sm-5" name="hsl_th" id="hsl_th"></select>
-                            </div>
-                            <div class="form-group row mb-2 mt-2">
-                                <label class="col-sm-5 offset-sm-1">Pilih Ujian</label>
-                                <select class="form-control form-control-sm col-sm-5" name="hsl_tes" id="hsl_tes"></select>
-                            </div>
-                            <div class="form-group row mb-2 mt-2">
-                                <label class="col-sm-5 offset-sm-1">Pilih Kelas</label>
-                                <select class="form-control form-control-sm col-sm-5" name="hsl_kls" id="hsl_kls"></select>
-                            </div>
-                            <div class="form-group row mb-2 mt-2">
-                                <label class="col-sm-5 offset-sm-1">Pilih Rombel</label>
-                                <select class="form-control form-control-sm col-sm-5" name="hsl_tes" id="hsl_tes"></select>
-                            </div>
-                        </div>
-                        <div class=" modal-footer justify-content-between">
-                            <button type="submit" class="btn btn-primary btn-sm col-4" id="hasil" name="hasil">
-                                <i class="fas fa-save"></i> Simpan
-                            </button>
-                            <a href="#" class="btn btn-danger btn-sm col-4" data-dismiss="modal">
-                                <i class="fas fa-power-off"></i> Tutup
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
 
-        <div class="modal fade" id="myHasilRekap" aria-modal="true">
+        <div class="modal fade" id="myLaporTes" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Laporan Rekap Hasil Tes</h5>
+                        <h5 class="modal-title" id="judule">Laporan Hasil Tes</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
+                    <script type="text/javascript" src="js/laporan.js"></script>
                     <div class="modal-body">
+                        <div class="form-group row mb-2 mt-2">
+                            <input type="hidden" class="form-control form-control-sm col-sm-5" id="idlapor" name="idlapor">
 
+                            <label class="col-sm-5 offset-sm-1">Ujian (Tes)</label>
+                            <select class="form-control form-control-sm col-sm-5" name="hsl_tes" id="hsl_tes" onchange="getKelas(this.value)">
+                                <?php
+                                $sqtes = "SELECT u.idujian, u.nmujian, ts.nmtes FROM tbujian u INNER JOIN tbtes ts USING(idtes) INNER JOIN tbthpel t USING(idthpel) WHERE t.aktif='1'";
+                                $qtes = vquery($sqtes);
+                                ?>
+                                <option value="">..Pilih..</option>
+                                <?php
+                                foreach ($qtes as $ts) : ?>
+                                    <option value="<?php echo $ts['idujian']; ?>"><?php echo $ts['nmujian'] . ' - ' . $ts['nmtes']; ?></option>
+                                <?php endforeach ?>
+                            </select>
+                        </div>
+                        <div class="form-group row mb-2 mt-2">
+                            <label class="col-sm-5 offset-sm-1">Kelas</label>
+                            <select class="form-control form-control-sm col-sm-5" name="hsl_kls" id="hsl_kls" onchange="getRombel(this.value)"></select>
+                        </div>
+                        <div class=" form-group row mb-2 mt-2">
+                            <label class="col-sm-5 offset-sm-1">Rombel</label>
+                            <select class="form-control form-control-sm col-sm-5" name="hsl_rmb" id="hsl_rmb"></select>
+                        </div>
                     </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="submit" class="btn btn-primary btn-sm col-4" id="rekap" name="rekap">
-                            <i class="fas fa-save"></i> Simpan
-                        </button>
-                        <a href="#" class="btn btn-danger btn-sm col-4" data-dismiss="modal">
-                            <i class="fas fa-power-off"></i> Tutup
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="myHasilRapor" aria-modal="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Cetak Rapor Murni</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="submit" class="btn btn-primary btn-sm col-4" id="rapor" name="rapor">
-                            <i class="fas fa-save"></i> Simpan
+                    <div class=" modal-footer justify-content-between">
+                        <button class="btn btn-primary btn-sm col-4" id="btnLapor" name="lapor_hsl">
+                            <i class="fas fa-eye"></i> Lihat
                         </button>
                         <a href="#" class="btn btn-danger btn-sm col-4" data-dismiss="modal">
                             <i class="fas fa-power-off"></i> Tutup
@@ -196,152 +160,158 @@ if (empty($_COOKIE['id'])) {
             </aside>
             <div class="content-wrapper" style="background:url(../assets/img/boxed-bg.png)">
                 <?php
-                switch ($_GET['p']) {
-                    case 'dashboard': {
-                            $head = 'Dashboard';
-                            $menu = '';
-                            break;
-                        }
-                    case 'datasekolah': {
-                            $head = 'Data Master';
-                            $menu = 'Identitas Satuan Pendidikan';
-                            break;
-                        }
-                    case 'datauser': {
-                            $head = 'Data Master';
-                            $menu = 'Guru Bidang Studi';
-                            break;
-                        }
-                    case 'adduser': {
-                            $head = 'Guru Bidang Studi';
-                            $menu = 'Tambah / Edit Data Pengguna';
-                            break;
-                        }
-                    case 'datakur': {
-                            $head = 'Data Master';
-                            $menu = 'Kurikulum';
-                            break;
-                        }
-                    case 'datamapel': {
-                            $head = 'Data Master';
-                            $menu = 'Mata Pelajaran';
-                            break;
-                        }
-                    case 'datasiswa': {
-                            $head = 'Data Master';
-                            $menu = 'Biodata Peserta Didik';
-                            break;
-                        }
-                    case 'addsiswa': {
-                            $head = 'Biodata Peserta Didik';
-                            $menu = 'Tambah / Edit Biodata Peserta Didik';
-                            break;
-                        }
-                    case 'datakelas': {
-                            $head = 'Manajemen KBM';
-                            $menu = 'Data Rombongan Belajar';
-                            break;
-                        }
-                    case 'datarombel': {
-                            $head = 'Manajemen KBM';
-                            $menu = 'Anggota Rombongan Belajar';
-                            break;
-                        }
-                    case 'datakkm': {
-                            $head = 'Manajemen KBM';
-                            $menu = 'Pengaturan KKM';
-                            break;
-                        }
-                    case 'dataampu': {
-                            $head = 'Manajemen KBM';
-                            $menu = 'Data Guru Pengampu';
-                            break;
-                        }
-                    case 'datates': {
-                            $head = 'Manajemen Ujian';
-                            $menu = 'Jenis Tes';
-                            break;
-                        }
-                    case 'sesi': {
-                            $head = 'Manajemen Ujian';
-                            $menu = 'Sesi Ujian';
-                            break;
-                        }
-                    case 'ruang': {
-                            $head = 'Manajemen Ujian';
-                            $menu = 'Ruang Ujian';
-                            break;
-                        }
-                    case 'jadwal': {
-                            $head = 'Manajemen Ujian';
-                            $menu = 'Jadwal Ujian';
-                            break;
-                        }
-                    case 'datapeserta': {
-                            $head = 'Manajemen Ujian';
-                            $menu = 'Peserta Ujian';
-                            break;
-                        }
-                    case 'banksoal': {
-                            $head = 'Manajemen Ujian';
-                            $menu = 'Bank Soal';
-                            break;
-                        }
-                    case 'isisoal': {
-                            $head = 'Manajemen Ujian';
-                            $menu = 'Bank Soal';
-                            break;
-                        }
-                    case 'editsoal': {
-                            $head = 'Manajemen Ujian';
-                            $menu = 'Bank Soal';
-                            break;
-                        }
-                    case 'statussoal': {
-                            $head = 'Status Ujian';
-                            $menu = 'Ujikan Bank Soal';
-                            break;
-                        }
-                    case 'token': {
-                            $head = 'Status Ujian';
-                            $menu = 'Rilis Token';
-                            break;
-                        }
-                    case 'statuspeserta': {
-                            $head = 'Status Ujian';
-                            $menu = 'Status Peserta';
-                            break;
-                        }
-                    case 'hasiltes': {
-                            $head = 'Laporan';
-                            $menu = 'Hasil Tes';
-                            break;
-                        }
-                    case 'ledger': {
-                            $head = 'Laporan';
-                            $menu = 'Rekap Nilai';
-                            break;
-                        }
-                    case 'rapor': {
-                            $head = 'Laporan';
-                            $menu = 'Rapor Murni';
-                            break;
-                        }
-                    default: {
-                            $head = 'Dashboard';
-                            $menu = 'Dashboard';
-                        }
+                if (isset($_GET['p'])) {
+                    switch ($_GET['p']) {
+                        case 'dashboard': {
+                                $head = 'Dashboard';
+                                $menu = '';
+                                break;
+                            }
+                        case 'datasekolah': {
+                                $head = 'Data Master';
+                                $menu = 'Identitas Satuan Pendidikan';
+                                break;
+                            }
+                        case 'datauser': {
+                                $head = 'Data Master';
+                                $menu = 'Guru Bidang Studi';
+                                break;
+                            }
+                        case 'adduser': {
+                                $head = 'Guru Bidang Studi';
+                                $menu = 'Tambah / Edit Data Pengguna';
+                                break;
+                            }
+                        case 'datakur': {
+                                $head = 'Data Master';
+                                $menu = 'Kurikulum';
+                                break;
+                            }
+                        case 'datamapel': {
+                                $head = 'Data Master';
+                                $menu = 'Mata Pelajaran';
+                                break;
+                            }
+                        case 'datasiswa': {
+                                $head = 'Data Master';
+                                $menu = 'Biodata Peserta Didik';
+                                break;
+                            }
+                        case 'addsiswa': {
+                                $head = 'Biodata Peserta Didik';
+                                $menu = 'Tambah / Edit Biodata Peserta Didik';
+                                break;
+                            }
+                        case 'datakelas': {
+                                $head = 'Manajemen KBM';
+                                $menu = 'Data Rombongan Belajar';
+                                break;
+                            }
+                        case 'datarombel': {
+                                $head = 'Manajemen KBM';
+                                $menu = 'Anggota Rombongan Belajar';
+                                break;
+                            }
+                        case 'datakkm': {
+                                $head = 'Manajemen KBM';
+                                $menu = 'Pengaturan KKM';
+                                break;
+                            }
+                        case 'dataampu': {
+                                $head = 'Manajemen KBM';
+                                $menu = 'Data Guru Pengampu';
+                                break;
+                            }
+                        case 'datates': {
+                                $head = 'Manajemen Ujian';
+                                $menu = 'Jenis Tes';
+                                break;
+                            }
+                        case 'sesi': {
+                                $head = 'Manajemen Ujian';
+                                $menu = 'Sesi Ujian';
+                                break;
+                            }
+                        case 'ruang': {
+                                $head = 'Manajemen Ujian';
+                                $menu = 'Ruang Ujian';
+                                break;
+                            }
+                        case 'jadwal': {
+                                $head = 'Manajemen Ujian';
+                                $menu = 'Jadwal Ujian';
+                                break;
+                            }
+                        case 'datapeserta': {
+                                $head = 'Manajemen Ujian';
+                                $menu = 'Peserta Ujian';
+                                break;
+                            }
+                        case 'banksoal': {
+                                $head = 'Manajemen Ujian';
+                                $menu = 'Bank Soal';
+                                break;
+                            }
+                        case 'isisoal': {
+                                $head = 'Manajemen Ujian';
+                                $menu = 'Bank Soal';
+                                break;
+                            }
+                        case 'editsoal': {
+                                $head = 'Manajemen Ujian';
+                                $menu = 'Bank Soal';
+                                break;
+                            }
+                        case 'statussoal': {
+                                $head = 'Status Ujian';
+                                $menu = 'Ujikan Bank Soal';
+                                break;
+                            }
+                        case 'token': {
+                                $head = 'Status Ujian';
+                                $menu = 'Rilis Token';
+                                break;
+                            }
+                        case 'statuspeserta': {
+                                $head = 'Status Ujian';
+                                $menu = 'Status Peserta';
+                                break;
+                            }
+                        case 'hasiltes': {
+                                $head = 'Laporan';
+                                $menu = 'Hasil Tes';
+                                break;
+                            }
+                        case 'ledger': {
+                                $head = 'Laporan';
+                                $menu = 'Rekap Nilai';
+                                break;
+                            }
+                        case 'rapor': {
+                                $head = 'Laporan';
+                                $menu = 'Rapor Murni';
+                                break;
+                            }
+                        default: {
+                                $head = 'Dashboard';
+                                $menu = 'Dashboard';
+                                break;
+                            }
+                    }
+                } else {
+                    $head = 'Dashboard';
+                    $menu = 'Dashboard';
                 }
                 ?>
                 <div class="content-header">
                     <div class="container-fluid">
                         <div class="row mb-2">
                             <div class="col-sm-6">
-                                <h1 class="m-0 text-dark"><?php echo $head; ?></h1>
+                                <h1 class="m-0 text-dark" id="hdTitle"><?php echo $head; ?></h1>
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
-                                    <li class="breadcrumb-item"><?php echo $menu; ?></li>
+                                    <li class="breadcrumb-item" id="hdMenu"><?php echo $menu; ?></li>
                                 </ol>
                             </div>
                         </div>
@@ -349,153 +319,157 @@ if (empty($_COOKIE['id'])) {
                 </div>
                 <section class="content">
                     <div class="container-fluid">
-                        <div class="form-group">
+                        <div class="form-group" id="konten">
                             <?php
-                            switch ($_GET['p']) {
-                                case 'dashboard': {
-                                        include "dashboard.php";
-                                        break;
-                                    }
-                                case 'datasekolah': {
-                                        include "sekolah_tampil.php";
-                                        break;
-                                    }
-                                case 'datagtk': {
-                                        include "gtk_tampil.php";
-                                        break;
-                                    }
-                                case 'addgtk': {
-                                        include "gtk_form.php";
-                                        break;
-                                    }
-                                case 'datakur': {
-                                        include "kurikulum_tampil.php";
-                                        break;
-                                    }
-                                case 'datates': {
-                                        include "tes_tampil.php";
-                                        break;
-                                    }
-                                case 'datamapel': {
-                                        include "mapel_tampil.php";
-                                        break;
-                                    }
-                                case 'datasiswa': {
-                                        include "siswa_tampil.php";
-                                        break;
-                                    }
-                                case 'addsiswa': {
-                                        include "siswa_form.php";
-                                        break;
-                                    }
-                                case 'datakelas': {
-                                        include "kelas_tampil.php";
-                                        break;
-                                    }
-                                case 'dataampu': {
-                                        include "pengampu_tampil.php";
-                                        break;
-                                    }
-                                case 'datarombel': {
-                                        include "rombel_tampil.php";
-                                        break;
-                                    }
-                                case 'datakkm': {
-                                        include "kkm_tampil.php";
-                                        break;
-                                    }
-                                case 'dataujian': {
-                                        include "ujian_tampil.php";
-                                        break;
-                                    }
-                                case 'sesi': {
-                                        include "sesi_tampil.php";
-                                        break;
-                                    }
-                                case 'ruang': {
-                                        include "ruang_tampil.php";
-                                        break;
-                                    }
-                                case 'jadwal': {
-                                        include "jadwal_tampil.php";
-                                        break;
-                                    }
-                                case 'panitia': {
-                                        include "panitia_tampil.php";
-                                        break;
-                                    }
-                                case 'banksoal': {
-                                        include "banksoal_tampil.php";
-                                        break;
-                                    }
-                                case 'isisoal': {
-                                        include "isisoal_tampil.php";
-                                        break;
-                                    }
-                                case 'addstimulus': {
-                                        include "isisoal_addstimulus.php";
-                                        break;
-                                    }
-                                case 'tambahsoal': {
-                                        include "isisoal_addbutir.php";
-                                        break;
-                                    }
-                                case 'editsoal': {
-                                        include "isisoal_editbutir.php";
-                                        break;
-                                    }
-                                case 'editsoal': {
-                                        include "isisoal_edit.php";
-                                        break;
-                                    }
-                                case 'datapeserta': {
-                                        include "peserta_tampil.php";
-                                        break;
-                                    }
-                                case 'statuspeserta': {
-                                        include "status_peserta.php";
-                                        break;
-                                    }
-                                case 'statussoal': {
-                                        include "status_soal.php";
-                                        break;
-                                    }
-                                case 'token': {
-                                        include "token_tampil.php";
-                                        break;
-                                    }
-                                case 'hasiltes': {
-                                        include "hasil_tes.php";
-                                        break;
-                                    }
-                                case 'detailtes': {
-                                        include "hasil_detail.php";
-                                        break;
-                                    }
-                                case 'jawabantes': {
-                                        include "hasil_jawab.php";
-                                        break;
-                                    }
-                                case 'ledger': {
-                                        include "hasil_rekap.php";
-                                        break;
-                                    }
-                                case 'hadir': {
-                                        include "hasil_hadir.php";
-                                        break;
-                                    }
-                                case 'rapor': {
-                                        include "hasil_rapor.php";
-                                        break;
-                                    }
-                                case 'backup': {
-                                        include "backup.php";
-                                        break;
-                                    }
-                                default: {
-                                        include "dashboard.php";
-                                        break;
-                                    }
+                            if (isset($_GET['p'])) {
+                                switch ($_GET['p']) {
+                                    case 'dashboard': {
+                                            include "dashboard.php";
+                                            break;
+                                        }
+                                    case 'datasekolah': {
+                                            include "sekolah_tampil.php";
+                                            break;
+                                        }
+                                    case 'datagtk': {
+                                            include "gtk_tampil.php";
+                                            break;
+                                        }
+                                    case 'addgtk': {
+                                            include "gtk_form.php";
+                                            break;
+                                        }
+                                    case 'datakur': {
+                                            include "kurikulum_tampil.php";
+                                            break;
+                                        }
+                                    case 'datates': {
+                                            include "tes_tampil.php";
+                                            break;
+                                        }
+                                    case 'datamapel': {
+                                            include "mapel_tampil.php";
+                                            break;
+                                        }
+                                    case 'datasiswa': {
+                                            include "siswa_tampil.php";
+                                            break;
+                                        }
+                                    case 'addsiswa': {
+                                            include "siswa_form.php";
+                                            break;
+                                        }
+                                    case 'datakelas': {
+                                            include "kelas_tampil.php";
+                                            break;
+                                        }
+                                    case 'dataampu': {
+                                            include "pengampu_tampil.php";
+                                            break;
+                                        }
+                                    case 'datarombel': {
+                                            include "rombel_tampil.php";
+                                            break;
+                                        }
+                                    case 'datakkm': {
+                                            include "kkm_tampil.php";
+                                            break;
+                                        }
+                                    case 'dataujian': {
+                                            include "ujian_tampil.php";
+                                            break;
+                                        }
+                                    case 'sesi': {
+                                            include "sesi_tampil.php";
+                                            break;
+                                        }
+                                    case 'ruang': {
+                                            include "ruang_tampil.php";
+                                            break;
+                                        }
+                                    case 'jadwal': {
+                                            include "jadwal_tampil.php";
+                                            break;
+                                        }
+                                    case 'panitia': {
+                                            include "panitia_tampil.php";
+                                            break;
+                                        }
+                                    case 'banksoal': {
+                                            include "banksoal_tampil.php";
+                                            break;
+                                        }
+                                    case 'isisoal': {
+                                            include "isisoal_tampil.php";
+                                            break;
+                                        }
+                                    case 'addstimulus': {
+                                            include "isisoal_addstimulus.php";
+                                            break;
+                                        }
+                                    case 'tambahsoal': {
+                                            include "isisoal_addbutir.php";
+                                            break;
+                                        }
+                                    case 'editsoal': {
+                                            include "isisoal_editbutir.php";
+                                            break;
+                                        }
+                                    case 'editsoal': {
+                                            include "isisoal_edit.php";
+                                            break;
+                                        }
+                                    case 'datapeserta': {
+                                            include "peserta_tampil.php";
+                                            break;
+                                        }
+                                    case 'statuspeserta': {
+                                            include "status_peserta.php";
+                                            break;
+                                        }
+                                    case 'statussoal': {
+                                            include "status_soal.php";
+                                            break;
+                                        }
+                                    case 'token': {
+                                            include "token_tampil.php";
+                                            break;
+                                        }
+                                    case 'hasiltes': {
+                                            include "hasil_tes.php";
+                                            break;
+                                        }
+                                    case 'detailtes': {
+                                            include "hasil_detail.php";
+                                            break;
+                                        }
+                                    case 'jawabantes': {
+                                            include "hasil_jawab.php";
+                                            break;
+                                        }
+                                    case 'ledger': {
+                                            include "hasil_rekap.php";
+                                            break;
+                                        }
+                                    case 'hadir': {
+                                            include "hasil_hadir.php";
+                                            break;
+                                        }
+                                    case 'rapor': {
+                                            include "hasil_rapor.php";
+                                            break;
+                                        }
+                                    case 'backup': {
+                                            include "backup.php";
+                                            break;
+                                        }
+                                    default: {
+                                            include "dashboard.php";
+                                            break;
+                                        }
+                                }
+                            } else {
+                                include "dashboard.php";
                             }
                             ?>
                         </div>
@@ -531,7 +505,83 @@ if (empty($_COOKIE['id'])) {
                 }
                 bsCustomFileInput.init();
             });
+            $("#MasterSkul").click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "sekolah_tampil.php",
+                    type: 'POST',
+                    data: "html",
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    timeout: 8000,
+                    success: function(respons) {
+                        $("#hdTitle").html('Master')
+                        $("#hdMenu").html('Data Sekolah12')
+                        $("#konten").html(respons)
+                    }
+                })
+            })
+            $(".btnReport").click(function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                if (id == '1') {
+                    $("#judule").html("Laporan Hasil Ujian");
+                }
+                if (id == '2') {
+                    $("#judule").html("Rekapitulasi Hasil Ujian");
+                }
+                if (id == '3') {
+                    $("#judule").html("Rapor Peserta Didik");
+                }
+                $("#idlapor").val(id);
+            })
+            $("#btnLapor").click(function(e) {
+                e.preventDefault()
+                let idl = $("#idlapor").val()
+                if (idl == 1) {
+                    myurl = "hasil_tes.php"
+                }
+                if (idl == 2) {
+                    myurl = "hasil_rekap.php"
+                }
+                if (idl == 3) {
+                    myurl = "hasil_rapor.php"
+                }
+                let uji = $("#hsl_tes").val()
+                let kls = $("#hls_kls").val()
+                let rmb = $("#hsl_rmb").val()
+                if (uji == '') {
+                    toastr.error("Pilih Jenis Tes Dulu", "Maaf!");
+                } else if (kls == '') {
+                    toastr.error("Pilih Kelas Dulu", "Maaf!");
+                } else if (rmb == '') {
+                    toastr.error("Pilih Rombel Dulu", "Maaf!");
+                } else {
+                    let data = new FormData()
+                    data.append('uji', uji);
+                    // data.append('kls', kls);
+                    data.append('rmb', rmb);
+                    $.ajax({
+                        url: myurl,
+                        type: 'POST',
+                        data: data,
+                        processData: false,
+                        contentType: false,
+                        cache: false,
+                        timeout: 8000,
+                        success: function(respons) {
+                            $("#myLaporTes").modal('hide')
+                            $("#konten").html(respons)
+                        }
+                    })
+                }
+
+                //window.location.href = myurl;
+
+            })
         </script>
+        <script src="../assets/js/jquery.js"></script>
         <script type="text/javascript" src="../assets/plugins/jquery/jquery.min.js"></script>
         <script src="../assets/js/bootstrap.bundle.min.js"></script>
         <script src="../assets/js/adminlte.min.js"></script>

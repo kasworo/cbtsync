@@ -31,9 +31,9 @@ if (isset($_POST['mulai'])) {
 	} else {
 		$qceklog = "SELECT*FROM tblogpeserta lp WHERE idjadwal='$idjadwal' AND idsiswa='$_COOKIE[pst]' AND lp.status='0'";
 		$ceklog = cquery($qceklog);
-		// var_dump($ceklog);
-		// die;
+
 		if ($ceklog == 0) {
+
 			if ($jd['lambat'] == '0') {
 				$sisa = $durasi * 60;
 				$status = '0';
@@ -52,9 +52,9 @@ if (isset($_POST['mulai'])) {
 				'logmulai' => $saiki,
 				'sisawaktu' => $sisa,
 				'status' => $status,
-				'ip' => $ipaddr
+				'ip' => $ipaddr,
+				'hal'=>'1'
 			);
-
 			if (adddata('tblogpeserta', $datane) > 0) {
 				header("Location: index.php?p=ujian");
 			}

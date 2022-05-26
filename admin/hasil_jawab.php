@@ -1,298 +1,121 @@
 <?php
-	if(!isset($_COOKIE['c_user'])){header("Location: login.php");}
+$sqcek = "SELECT idjwb FROM tbjawaban jwb INNER JOIN tbsoal so USING(idbutir) INNER JOIN tbstimulus st USING(idstimulus) WHERE idsiswa='$_POST[idsw]' AND idset='$_POST[idset]'";
+$rowCount = cquery($sqcek);
+if ($rowCount > 0) {
+    echo "<script>
+    $(document).ready(function() {
+        tampilsoal(1)
+    })
+    </script>";
+}
 
-	if(!empty($_GET['d']) && $_GET['d']=='1'){include "isisoal_upload.php";}
+$qsu = "SELECT bs.idujian, su.idrombel, bs.idmapel FROM tbsetingujian su INNER JOIN tbbanksoal bs USING(idbank) INNER JOIN tbmapel mp USING(idmapel) WHERE su.idset='$_POST[idset]'";
+$du = vquery($qsu)[0];
+$iduji = $du['idujian'];
+$idmapel = $du['idmapel'];
+$idrombel = $du['idrombel'];
+
+$sqcek = "SELECT jw.idsiswa, ps.nmsiswa, ps.nis, ps.nisn, idset, COUNT(idset) as semua, SUM(skor) as benar, bs.nmbank, mp.nmmapel FROM tbjawaban jw INNER JOIN tbsoal so USING(idbutir) INNER JOIN tbstimulus st USING(idstimulus) INNER JOIN tbbanksoal bs USING(idbank) INNER JOIN tbmapel mp USING(idmapel) INNER JOIN tbpeserta ps USING(idsiswa) WHERE jw.idsiswa='$_POST[idsw]' AND jw.idset='$_POST[idset]'";
+$sta = vquery($sqcek)[0];
+//var_dump($sta);
+
+
 ?>
-<!--<link rel="stylesheet" href="../ujian.css">-->
-<style type="text/css">
-	input[type="radio"] {
-		 left:5px;top:2px;position:relative; margin-right:15px;padding-right: 15px;cursor: pointer;-webkit-appearance: none;-moz-appearance: none; appearance: none;outline: 0;height: 20px;width: 20px;background-image:url(../assets/img/cek.png);
-	}
-	input[type="radio"]:checked {
-		left:5px;top:2px;position:relative; margin-right:15px;padding-right: 15px;cursor: pointer;-webkit-appearance: none;-moz-appearance: none; appearance: none;outline: 0;height: 20px;width: 20px;background-image:url(../assets/img/ceklis.png);
-	}
 
- 	input[type="checkbox"] {
-		 left:5px;top:2px;position:relative; margin-right:15px;padding-right: 15px;cursor: pointer;-webkit-appearance: none;-moz-appearance: none; appearance: none;outline: 0;height: 20px;width: 20px;background-image:url(../assets/img/cek.png);
-	}
-	input[type="checkbox"]:checked {
-		left:5px;top:2px;position:relative; margin-right:15px;padding-right: 15px;cursor: pointer;-webkit-appearance: none;-moz-appearance: none; appearance: none;outline: 0;height: 20px;width: 20px;background-image:url(../assets/img/ceklis.png);
-	}
-
-	input[type="checkbox"]:hover {
-		filter: brightness(98%);
-	}
-
-	input[type="checkbox"]:disabled {
-		background: #e6e6e6;
-		opacity: 0.6;
-		pointer-events: none;
-	}
-</style>
-<div class="col-sm-12">
-	<div class="card card-secondary card-outline">
-		<div class="card-header">
-			<h3 class="card-title">Hasil Jawaban</h3>
-            <div class="card-tools">
-                <a href="index.php?p=detailtes&id=<?php echo $_GET['id'];?>" class="btn btn-primary btn-sm">
-					<i class="fas fa-arrow-left"></i>&nbsp;Kembali
-				</a>
+<div class="modal fade" id="myViewHasil" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ringkasan Jawaban</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
             </div>
-		</div>
-		<div class="card-body">
-			<div class="col-sm-12">
-			<?php
-                $qsoal=$conn->query("SELECT jwb.*, so.jnssoal, so.butirsoal FROM tbjawaban jwb INNER JOIN tbsoal so USING(idbutir) WHERE so.idbank='$_GET[id]' AND jwb.idsiswa='$_GET[pst]' ORDER BY jwb.urut");
-				$no=0;
-				while($s=$qsoal->fetch_array()):
-					$no++;
-                    $butir=str_replace('<img ','<img class="img img-fluid img-responsive"',$s['butirsoal']);
-                    $idbutir=$s['idbutir'];
-                    $jnssoal=$s['jnssoal'];
-                    $skor=$s['skor'];
-                    $getopsi=explode(",",$s['viewopsi']);
-                    $getopsialt=explode(",",$s['viewopsialt']);
-                    $getbenar=explode(",",$s['jwbbenar']);
-                    $getsalah=explode(",",$s['jwbsalah']);
-                ?>
-                <div class="form-group row mb-2">
-					<table width="100%" cellpadding="5px auto" cellspacing="2px">
-						<tr>
-							<td width="2.5%" valign="top"><?php echo $no.".";?></td>
-							<td valign="top" colspan="2" padding="5px" width="80%">
-							    <?php echo $butir;?>
-							</td>
-						</tr>
-					</table>
-				</div>
-                <div class="form-group row mb-2">
-                <?php if($jnssoal=='1'):?>
-                    <table width="100%" cellpadding="5px auto" cellspacing="2px">
-                        <?php foreach ($getopsi as $id=>$idopsi):?>
-                        <tr valign="top">
-                            <td width="2.5%">&nbsp;</td>
-                            <td valign="top" width="2.5%">
-                                <?php 
-                                    if($id==0){$val='A';}
-                                    else if($id==1){$val='B';}
-                                    else if($id==2){$val='C';}
-                                    else if($id==3){$val='D';}
-                                    else {$val='E';}
-                                    if($idopsi==$s['jwbbenar']){$hrf='checked';} else {$hrf='';}
-                                ?>
-                                <input id="btnOpsi<?php echo $no.$i;?>" type="radio" name="opsi<?php echo $no;?>" value="<?php echo $idopsi;?>" <?php echo $hrf;?>>
-							</td>
-                            <td valign="top" width="75%">
-                                <?php 
-                                    $qopsi=$conn->query("SELECT opsi, benar FROM tbopsi WHERE idopsi='$idopsi'");
-                                    $op=$qopsi->fetch_array();
-                                    if($op['benar']=='1'){$badge='&nbsp;<span class="badge badge-success">Kunci</span>';}else{$badge='';}
-                                    $ops = str_replace("/cbt/pictures/","pictures/",$op['opsi']);
-                                    $opsi = str_replace("<img src=","<img class='img img-fluid img-responsive' src=",$ops);
-                                    echo $opsi.$badge;
-                                ?>
-                            </td>
-                        </tr>
-                        <?php endforeach?>
-                        <tr>
-                            <td width="2.5%">&nbsp;</td>
-                            <td colspan="2">Skor Perolehan: <strong style="color:red"><?php echo number_format($skor,2,',','.');?></strong></td>
-                        </tr>
-                    </table>
-		    <?php elseif($jnssoal=='2'): ?>
-                <table cellpadding="5px auto" cellspacing="2px" width="100%">
-                    <?php foreach ($getopsi as $id=>$idopsi):?>
-                    <tr>
-                        <td width="2.5%">&nbsp;</td>
-                        <td valign="top" width="2.5%">
-                            <?php
-                                if (in_array($idopsi,$getbenar)){
-                                    $hrf='checked';
-                                }
-                                else {
-                                    $hrf='';
-                                }
-                            ?>
-                            <input id="jawab" class="opsi2" type="checkbox" name="opsijwb[]" value="<?php echo $idopsi;?>" <?php echo $hrf;?>>
-                        </td>
-                        <td valign="top" width="75%">
-                            <?php 
-                                $qopsi=$conn->query("SELECT opsi, benar FROM tbopsi WHERE idopsi='$idopsi'");
-                                $op=$qopsi->fetch_array();
-                                if($op['benar']=='1'){$badge='&nbsp;<span class="badge badge-success">Kunci</span>';}else{$badge='';}
-                                $ops = str_replace("/cbt/pictures/","pictures/",$op['opsi']);
-                                $opsi = str_replace("<img src=","<img class='img img-fluid img-responsive' src=",$ops);
-                                echo $opsi.$badge;
-                            ?>
-                        </td>
-                    </tr>
-                    <?php endforeach?>
-                    <tr>
-                            <td width="2.5%">&nbsp;</td>
-                            <td colspan="2">Skor Perolehan: <strong style="color:red"><?php echo number_format($skor,2,',','.');?></strong></td>
-                        </tr>	
-                </table>
-                <?php elseif($jnssoal=='3'):?>
-                    <table cellpadding="5px auto" cellspacing="2px" width="100%">
-						<tr>
-							<td valign="top" width="2.5%">&nbsp;</td>						
-							<td valign="top" style="text-align:center;padding:5px;border:solid 1px;" width="75%">
-								<strong>Pernyataan</strong>
-							</td>
-							<td style="text-align:center;padding:5px;border:solid 1px;"><strong>Benar</strong></td>
-							<td style="text-align:center;padding:5px;border:solid 1px;"><strong>Salah</strong></td>
-						</tr>
-                    <?php foreach ($getopsi as $id=>$idopsi):?>
-                    <tr>
-                        <td width="2.5%">&nbsp;</td>
-                        <td valign="top" style="padding:5px;border:solid 1px;">
-                        <?php 
-                            $qopsi=$conn->query("SELECT opsi, benar FROM tbopsi WHERE idopsi='$idopsi'");
-                            $op=$qopsi->fetch_array();
-                            if($op['benar']=='1'){$badge='&nbsp;<span class="badge badge-success">Benar</span>';}else{$badge='&nbsp;<span class="badge badge-danger">Salah</span>';}
-                            $opsi = $op['opsi'];
-                            echo $opsi.' '.$badge;
-                        ?>
-                        </td>
-                        <td valign="top" style="text-align:center;padding:5px;border:solid 1px;">
-                            <?php
-                                // if (in_array($idopsi,$getbenar)){
-                                //     $hrf1='checked';
-                                // }
-                                // else {
-                                //     $hrf='';
-                                // }
-                                $qjwb=$conn->query("SELECT jawaban FROM tbmatching WHERE idopsi='$idopsi' AND idsiswa='$_GET[pst]'");
-                                $mt=$qjwb->fetch_array();
-                                if($mt['jawaban']=='1') {
-                                    $hrf='checked';
-                                    $hrf0='';
-                                } else if($mt['jawaban']=='0') {
-                                    $hrf='';
-                                    $hrf0='checked';
-                                }
-                                else{
-                                    $hrf='';
-                                    $hrf0='';
-                                }
-                            ?>
-                            <input id="BtnBenar<?php echo $idopsi;?>" class="opsibenar" type="radio" name="opsijwb<?php echo $idopsi;?>" value="<?php echo $idopsi;?>" <?php echo $hrf;?>>
-                        </td>
-                        <td valign="top" style="text-align:center;padding:5px;border:solid 1px;">
-                            <!-- <?php
-                                if (in_array($idopsi,$getsalah)){
-                                    $hrf='checked';
-                                }
-                                else {
-                                    $hrf='';
-                                }
-                            ?> -->
-                            <input id="BtnSalah<?php echo $idopsi;?>" class="opsisalah" type="radio" name="opsijwb<?php echo $idopsi;?>" value="<?php echo $idopsi;?>" <?php echo $hrf0;?>>
-                        </td>
-                    </tr>
-                    <?php endforeach ?>	
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td colspan="3">Skor Perolehan: <strong style="color:red"><?php echo number_format($skor,2,',','.');?></strong></td>              
-                    </tr>
-                </table>
-                <?php elseif($jnssoal=='4'):?>            
-			    <table cellpadding="5px auto" cellspacing="2px" width="100%">
-					<?php foreach ($getopsi as $id=>$idopsi):?>
-                        <tr>
-                            <td width="2.5%">&nbsp;</td>
-                            <td valign="top" colspan="2">
-                                <?php 
-                                    $qopsi=$conn->query("SELECT opsi FROM tbopsi WHERE idopsi='$idopsi'");
-                                    $op=$qopsi->fetch_array();
-                                    $opsi = $op['opsi'];
-                                    echo $opsi;
-                                ?>
-                            </td>
-                        </tr>
-					    <?php
-							foreach ($getopsialt as $ida=>$idopsialt):
-								if($ida==0){$vala='A';}
-								else if($ida==1){$vala='B';}
-								else if($ida==2){$vala='C';}
-								else if($ida==3){$vala='D';}
-								else if($ida==4){$vala='E';}
-								else if($ida==5){$vala='F';}
-								else if($ida==6){$vala='G';}
-								else if($ida==7){$vala='H';}
-								else if($ida==8){$vala='I';}
-								else {$vala='J';}								
-								if (in_array($idopsialt, $getbenar) && $idopsialt==$idopsi){
-									$hrf='checked';
-								}
-								else {
-									$hrf='';
-								}
-                        ?>
-                        <tr>
-                            <td width="2.5%">&nbsp;</td>
-                            <td valign="top" width="2.5%;">
-                                <div class="cc-selector mt-1">
-                                    <input id="OpsiM<?php echo $idopsi.$ida;?>" class="opsim" type="radio" name="opsijwb<?php echo $idopsi;?>" value="<?php echo $idopsialt;?>" <?php echo $hrf;?>>
-                                    <label class="drinkcard-cc <?php echo $vala;?>" 
-                                    for="OpsiM<?php echo $idopsi.$ida;?>"></label>
-                                </div>
-                            </td>
-                            <td width="72.5%">
-                            <?php
-								$qopal=$conn->query("SELECT idopsi, opsialt FROM tbopsi WHERE idopsi='$idopsialt'");
-								$opa=$qopal->fetch_array();
-                                if($opa['idopsi']==$idopsi){$badge='&nbsp;<span class="badge badge-success">Benar</span>';}else{$badge='&nbsp;<span class="badge badge-danger">Salah</span>';}
-								$opsa = str_replace("/cbt/pictures/","pictures/",$opa['opsialt']);
-								$opsa = str_replace("<img src=","<img class='img img-fluid img-responsive' src=",$opsa);
-								echo $opsa.' '.$badge;
-							?>
-                            </td>
-						</tr>				
-						<?php endforeach?>
-					<?php endforeach?>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td colspan="3">Skor Perolehan: <strong style="color:red"><?php echo number_format($skor,2,',','.');?></strong></td>              
-                        </tr>
-					</table>
-                <?php else:?>
-                    <table cellpadding="5px auto" cellspacing="2px" width="50%">
-                        <tr>
-                            <td width="2.5%">&nbsp;</td>
-                            <td valign="top" colspan="3">
-                                <strong>Jawaban</strong>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td width="2.5%">&nbsp;</td>
-                            <td width="2.5%">
-                                <input type="radio"></td>
-                                <td valign="top" width="25%">
-                                <?php 
-                                   echo $s['jwbbenar'];
-                                ?>
-                            </td>
-                            <td valign="top" width="12.5%">
-                                <?php 
-                                    $qopsi=$conn->query("SELECT opsi FROM tbopsi WHERE idbutir='$idbutir' AND benar='1'");
-                                    $op=$qopsi->fetch_array();
-                                    $opsi = $op['opsi'];
-                                    $badge='&nbsp;<span class="badge badge-success">Kunci</span>';
-                                    echo $opsi.$badge;
-                                ?>
-                            </td>
-                        </tr>
-                        <tr>
-                        <td>&nbsp;</td>
-                        <td colspan="3">Skor Perolehan: <strong style="color:red"><?php echo number_format($skor,2,',','.');?></strong></td>              
-                    </tr>
-                </table>
-			    <?php endif?>
-                </div>
-                <?php endwhile?>
+            <div class="modal-body">
+                <div class="fetched-data"></div>
             </div>
         </div>
     </div>
 </div>
-				
+<div class="card card-secondary card-outline">
+    <div class="card-header">
+        <h3 class="card-title">Detail Hasil Tes</h3>
+        <div class="card-tools justify-content-between">
+            <form action="index.php?p=detailtes" method="POST">
+                <input type="hidden" id="iduji" name="iduji" value="<?php echo $iduji; ?>">
+                <input type="hidden" id="idmapel" name="idmap" value="<?php echo $idmapel; ?>">
+                <input type="hidden" id="idrombel" name="idrmb" value="<?php echo $idrombel; ?>">
+                <button type="submit" class="btn btn-sm btn-secondary" id="btnKembali">
+                    <i class="fas fa-arrow-circle-left"></i>&nbsp;Kembali
+                </button>
+                <a href="#" data-toggle="modal" data-target="#myViewHasil" class="btn btn-sm btn-warning ViewHasil">
+                    <i class="fa fa-eye fa-fw"></i>&nbsp;Detail
+                </a>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="container">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><strong>Peserta Ujian</strong></h3>
+                </div>
+                <div class=" card-body justify-content-between">
+                    <div class="table-responsive p-0 mt-3">
+                        <table class="table table-condensed table-sm">
+                            <tr>
+                                <td width="25%"><strong>Nama Peserta Ujian</strong></td>
+                                <td width="2.5%">:</td>
+                                <td><?php echo $sta['nmsiswa']; ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nomor Induk</strong></td>
+                                <td>:</td>
+                                <td><?php echo $sta['nis'] . ' / ' . $sta['nisn']; ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mata Pelajaran</strong></td>
+                                <td>:</td>
+                                <td><?php echo $sta['nmmapel']; ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bank Soal</strong></td>
+                                <td>:</td>
+                                <td><?php echo $sta['nmbank']; ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Skor Perolehan</strong></td>
+                                <td>:</td>
+                                <td><?php echo number_format($sta['benar'], 2, ',', '.') . ' dari ' . $sta['semua']; ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container" id="hasil"></div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    function tampilsoal(h) {
+        let data = new FormData()
+        data.append('h', h)
+        data.append('idsw', <?php echo $_POST['idsw']; ?>)
+        data.append('idset', <?php echo $_POST['idset']; ?>)
+        data.append('aksi', 'load')
+        $.ajax({
+            url: "hasil_load.php",
+            type: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 8000,
+            success: function(resp) {
+                $("#hasil").html(resp)
+                $("#nomor").html('Soal Nomor ' + h)
+            }
+        })
+    }
+</script>

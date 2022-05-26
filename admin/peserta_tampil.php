@@ -7,6 +7,7 @@ function GetTglUjian()
     return cquery($sqlsesi);
 }
 if (isset($_POST['import'])) {
+    //include "dbfunction.php";
     if (empty($_FILES['tmpsesi']['tmp_name'])) {
         echo "<script>
             $(function() {
@@ -31,7 +32,7 @@ if (isset($_POST['import'])) {
             $xpeserta = $data->val($i, 5);
             $qsiswa = "SELECT idsiswa FROM tbpeserta WHERE nmpeserta='$xnmpeserta'";
             $sw = vquery($qsiswa)[0];
-            $idsiswa = $sq['idsiswa'];
+            $idsiswa = $sw['idsiswa'];
             for ($j = 1; $j <= $dtgl; $j++) {
                 $tgluji = $data->val(4, $j + 7);
                 $sqljd = "SELECT idjadwal FROM tbjadwal WHERE tglujian='$tgluji'";
@@ -240,6 +241,9 @@ if (isset($_POST['setsesi'])) {
                 </a>
                 <a href="print_nomeja.php" target="_blank" class="btn btn-default btn-sm">
                     <i class="fas fa-print"></i>&nbsp;Nomor Meja
+                </a>
+                <a href="print_daftar.php" target="_blank" class="btn btn-default btn-sm">
+                    <i class="fas fa-print"></i>&nbsp;Daftar Peserta
                 </a>
             </div>
         </div>

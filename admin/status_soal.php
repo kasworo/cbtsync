@@ -1,12 +1,3 @@
-<?php
-echo (floor(0.60) . "<br>");
-echo (floor(1.40) . "<br>");
-echo (ceil(1.40) . "<br>");
-echo (ceil(5) . "<br>");
-echo (ceil(5.1) . "<br>");
-echo (ceil(-5.1) . "<br>");
-echo (ceil(-5.9));
-?>
 <div class="modal fade" id="myUjian" aria-modal="true">
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
@@ -126,7 +117,7 @@ echo (ceil(-5.9));
 		let idb = $("#idsoal").val()
 		let jdw = $("#jduji").val()
 		let rmb = $("#rmbuji").val()
-		let hsl = $("#hasil").val()
+		let hsl = $("#vhasil").val()
 		let soal = $("#soal").val()
 		if (jdw == '') {
 			toastr.error("Pilih Jadwal Terlebih Dahulu!!", "Maaf!")
@@ -136,8 +127,6 @@ echo (ceil(-5.9));
 			toastr.error("Pilih Setting Hasil Dulu!!", "Maaf!")
 		} else if (soal == '') {
 			toastr.error("Isikan Jumlah Soal Dulu!!", "Maaf!")
-		} else if (soal >= jmlsoal) {
-			toastr.error("Tidak Boleh Lebih Dari " + (jmlsoal - 1) + "!!", "Maaf!")
 		} else {
 			let data = new FormData()
 			data.append('idb', idb)
@@ -155,9 +144,20 @@ echo (ceil(-5.9));
 				cache: false,
 				timeout: 8000,
 				success: function(respons) {
+					if (respons == 2) {
+						$(function() {
+							toastr.info('Bank Soal Berhasil Diujian, Paket Soal Berhasil Diupdate!!', 'Terima Kasih', {
+								timeOut: 3000,
+								fadeOut: 3000,
+								onHidden: function() {
+									window.location.reload()
+								}
+							});
+						});
+					}
 					if (respons == 1) {
 						$(function() {
-							toastr.success('Bank Soal Berhasil Diujikan!!', 'Terima Kasih', {
+							toastr.info('Bank Soal Berhasil Diujian, Paket Soal Berhasil Dibuat!!', 'Terima Kasih', {
 								timeOut: 3000,
 								fadeOut: 3000,
 								onHidden: function() {
@@ -171,13 +171,18 @@ echo (ceil(-5.9));
 		}
 	})
 	$(".btnUji").click(function() {
-		let id = $(this).data('id');
+		let data = new FormData();
+		data.append('id', $(this).data('id'));
 		$.ajax({
-			url: 'banksoal_aktif.php',
-			type: 'post',
-			data: 'id=' + id,
-			success: function(data) {
-				$(".fetched-data").html(data)
+			url: "banksoal_aktif.php",
+			type: 'POST',
+			data: data,
+			processData: false,
+			contentType: false,
+			cache: false,
+			timeout: 8000,
+			success: function(rsp) {
+				$(".fetched-data").html(rsp)
 			}
 		})
 	})

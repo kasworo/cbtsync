@@ -25,8 +25,6 @@ function upload($files)
 }
 
 if (isset($_POST['simpan'])) {
-	//var_dump($_POST);
-	//die;
 	if (empty($_POST['idsiswa'])) {
 		$data = array(
 			'idskul' => $idskul,

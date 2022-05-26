@@ -1,14 +1,14 @@
 <?php
 $host = "localhost";
 $user = "root";
-$pwd = "";
+$pwd = "Gemini84Ok";
 $db = "dbcbtnew";
 $conn = new mysqli($host, $user, $pwd, $db);
 if (mysqli_connect_errno()) {
 	echo "Error: Could not connect to database. ";
 	exit;
 }
-
+date_default_timezone_set('Asia/Jakarta');
 function indonesian_date($date)
 {
 	$indonesian_month = array(
@@ -281,8 +281,8 @@ function adddata($tbl, $data)
 	$key = array_keys($data);
 	$val = array_values($data);
 	$sql = "INSERT INTO $tbl (" . implode(', ', $key) . ") VALUES ('" . implode("', '", $val) . "')";
-	// var_dump($sql);
-	// die;
+	var_dump($sql);
+	die;
 	$conn->query($sql);
 	return $conn->affected_rows;
 }

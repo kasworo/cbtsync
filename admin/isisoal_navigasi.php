@@ -50,22 +50,32 @@ include "dbfunction.php";
                         if ($id == 0) {
                             if ($op['benar'] == '1') {
                                 $hrf = 'A';
+                            } else {
+                                $hrf = '';
                             }
                         } else if ($id == 1) {
                             if ($op['benar'] == '1') {
                                 $hrf = 'B';
+                            } else {
+                                $hrf = '';
                             }
                         } else if ($id == 2) {
                             if ($op['benar'] == '1') {
                                 $hrf = 'C';
+                            } else {
+                                $hrf = '';
                             }
                         } else if ($id == 3) {
                             if ($op['benar'] == '1') {
                                 $hrf = 'D';
+                            } else {
+                                $hrf = '';
                             }
                         } else {
                             if ($op['benar'] == '1') {
                                 $hrf = 'E';
+                            } else {
+                                $hrf = '';
                             }
                         }
                     }

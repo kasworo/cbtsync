@@ -1,7 +1,7 @@
 <?php
 define("BASEPATH", dirname(__FILE__));
-require_once("assets/library/phpqrcode/qrlib.php");
-require('assets/library/fpdf/fpdf.php');
+require_once("../assets/library/phpqrcode/qrlib.php");
+require('../assets/library/fpdf/fpdf.php');
 include "dbfunction.php";
 
 function getDataSkul()
@@ -127,12 +127,12 @@ class PDF extends FPDF
         $this->Cell(1.25, 0.675, 'Nilai', 'LB', 0, 'C');
         $this->Cell(2.05, 0.675, 'Ketercapaian', 'LBR', 0, 'C');
         $this->Ln();
-        $this->Image('assets/img/tandaair.png', 5.75, 7.675, 9.765);
+        $this->Image('../assets/img/tandaair.png', 5.75, 7.675, 9.765);
     }
 
     function IsiData($rb, $id, $u)
     {
-
+        $this->SetFont('Arial', '', '10');
         $qmapel = "SELECT mp.nmmapel, kkm.kkm, n.idujian, n.nilai, rb.idrombel, mp.idmapel FROM tbpeserta ps INNER JOIN tbujian u USING(idujian) INNER JOIN tbnilai n using(idsiswa,idujian) INNER JOIN tbmapel mp USING(idmapel) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel rb USING(idrombel)  INNER JOIN tbkkm kkm USING(idmapel, idkelas) WHERE ps.idsiswa='$id' AND rb.idrombel='$rb' ORDER BY mp.idmapel";
         $qmp = vquery($qmapel);
         $i = 0;
@@ -175,17 +175,30 @@ class PDF extends FPDF
         $this->Cell(19.25, 1.5, '', 'LBR', 0, 'C');
         $this->Ln(1.75);
         $this->SetFont('Arial', '', '10');
-        $trb = viewdata('tbsetrapor', array('idujian' => $u))[0];
-        $this->Cell(12.0, 0.675);
-        $this->Cell(2.5, 0.675, 'Diberikan di');
-        $this->Cell(0.5, 0.675, ':');
-        $this->Cell(4.0, 0.675, $trb['tmpterbit']);
-        $this->Ln();
-        $this->Cell(12.0, 0.675);
-        $this->Cell(2.5, 0.675, 'Tanggal');
-        $this->Cell(0.5, 0.675, ':');
-        $this->Cell(4.0, 0.675, indonesian_date($trb['tglterbit']));
-        $this->Ln(0.5);
+        if (cekdata('tbsetrapor', array('idujian' => $u)) > 0) {
+            $trb = viewdata('tbsetrapor', array('idujian' => $u))[0];
+            $this->Cell(12.0, 0.675);
+            $this->Cell(2.5, 0.675, 'Diberikan di');
+            $this->Cell(0.5, 0.675, ':');
+            $this->Cell(4.0, 0.675, $trb['tmpterbit']);
+            $this->Ln();
+            $this->Cell(12.0, 0.675);
+            $this->Cell(2.5, 0.675, 'Tanggal');
+            $this->Cell(0.5, 0.675, ':');
+            $this->Cell(4.0, 0.675, indonesian_date($trb['tglterbit']));
+            $this->Ln(0.5);
+        } else {
+            $this->Cell(12.0, 0.675);
+            $this->Cell(2.5, 0.675, 'Diberikan di');
+            $this->Cell(0.5, 0.675, ':');
+            $this->Cell(4.0, 0.675, 'Mulia Bhakti');
+            $this->Ln();
+            $this->Cell(12.0, 0.675);
+            $this->Cell(2.5, 0.675, 'Tanggal');
+            $this->Cell(0.5, 0.675, ':');
+            $this->Cell(4.0, 0.675, indonesian_date(date('Y-m-d')));
+            $this->Ln(0.5);
+        }
         $this->Cell(1.0, 0.5);
         $this->Cell(8.0, 0.5, 'Mengetahui:', 0, 0, 'C');
         $this->Cell(2.0, 0.5);
@@ -229,17 +242,18 @@ class PDF extends FPDF
         $sql = "SELECT nisn FROM tbpeserta WHERE idsiswa='$s'";
         $ds = vquery($sql)[0];
         $nisn = $ds['nisn'];
-        QRcode::png($_SERVER['HTTP_HOST'] . '/downloadrapor.php?id=' . $s . '&uji=' . $u, setclient . "qr_rp/" . $nisn . "_" . $u . ".png");
-        $this->Image(setclient . "qr_rp/" . $nisn . "_" . $u . ".png", 3.25, 24.10, 2.0, 'png');
+        QRcode::png($_SERVER['HTTP_HOST'] . '/downloadrapor.php?id=' . $s . '&uji=' . $u, "../qr_rp/" . $nisn . "_" . $u . ".png");
+        $this->Image("../qr_rp/" . $nisn . "_" . $u . ".png", 3.25, 24.10, 2.0, 'png');
     }
 
     function Cetak($id)
     {
-        if (isset($_GET['id'])) {
-            $qrmb = "SELECT ps.idsiswa, ps.nmsiswa, ps.nisn, ps.nis, r.nmrombel, u.idujian, t.idthpel FROM tbpeserta ps INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) INNER JOIN tbujian u USING(idujian) INNER JOIN tbthpel t ON (t.idthpel=r.idthpel AND u.idthpel=t.idthpel AND u.idthpel=r.idthpel) WHERE u.status='1' AND t.aktif='1' AND ps.idsiswa='$_GET[id]'";
+        if (isset($_POST['id'])) {
+            $qrmb = "SELECT ps.idsiswa, ps.nmsiswa, ps.nisn, ps.nis, r.nmrombel, r.idthpel FROM tbpeserta ps INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) WHERE ps.idsiswa='$_POST[id]'";
         } else {
-            $qrmb = "SELECT ps.idsiswa, ps.nmsiswa, ps.nisn, ps.nis, r.nmrombel, u.idujian, t.idthpel FROM tbpeserta ps INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) INNER JOIN tbujian u USING(idujian) INNER JOIN tbthpel t ON (t.idthpel=r.idthpel AND u.idthpel=t.idthpel AND u.idthpel=r.idthpel) WHERE r.idrombel='$id' AND u.status='1' AND t.aktif='1'";
+            $qrmb = "SELECT ps.idsiswa, ps.nmsiswa, ps.nisn, ps.nis, r.nmrombel, r.idthpel FROM tbpeserta ps INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) WHERE r.idrombel='$_POST[rmb]'";
         }
+
         $ds = vquery($qrmb);
         foreach ($ds as $s) {
             $datane = array(
@@ -247,14 +261,14 @@ class PDF extends FPDF
                 'nis' => $s['nis'],
                 'nisn' => $s['nisn'],
                 'rombel' => $s['nmrombel'],
-                'ujian' => $s['idujian'],
+                'ujian' => $_POST['uji'],
                 'tahun' => $s['idthpel']
             );
             $this->AddPage();
             $this->Judul($datane);
             $this->GetJudulKolom();
-            $this->IsiData($id, $s['idsiswa'], $s['idujian']);
-            $this->IsiQrCode($s['idsiswa'], $s['idujian']);
+            $this->IsiData($id, $s['idsiswa'], $_POST['uji']);
+            $this->IsiQrCode($s['idsiswa'], $_POST['uji']);
         }
     }
 }
@@ -263,20 +277,5 @@ $pdf = new PDF('P', 'cm', 'A4');
 $pdf->SetMargins(1, 1.25, 1);
 $pdf->SetAutoPageBreak('true', 2.5);
 $pdf->AliasNbPages();
-if (isset($_GET['id'])) {
-    $sql = "SELECT rb.idrombel FROM tbrombelsiswa rs INNER JOIN tbrombel rb USING(idrombel) INNER JOIN tbthpel tp USING(idthpel) WHERE tp.aktif='1' AND rs.idsiswa='$_GET[id]'";
-} else {
-    $us = getuser();
-    $level = $us['level'];
-    if ($level == '1') {
-        $sql = "SELECT rb.idrombel FROM tbrombel rb  INNER JOIN tbthpel tp USING(idthpel) WHERE tp.aktif='1'";
-    } else {
-        $sql = "SELECT rb.idrombel FROM tbrombel rb INNER JOIN tbthpel tp USING(idthpel) INNER JOIN tbgtk g USING(idgtk) INNER JOIN tbuser us USING(username) WHERE tp.aktif='1' AND us.username='$_COOKIE[id]'";
-    }
-}
-
-$qrmb = vquery($sql);
-foreach ($qrmb as $rm) {
-    $pdf->Cetak($rm['idrombel']);
-}
+$pdf->Cetak($_POST['rmb']);
 $pdf->Output();

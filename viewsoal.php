@@ -19,9 +19,11 @@ $so = vquery($sql)[0];
 ?>
 <style type="text/css">
     .arab {
-        font-family: "Amiri Quran";
-        font-size: 18pt;
-        src: url('assets/webfonts/amiri.ttf');
+        src: url('assets/webfonts/lpmq.ttf');
+        text-align: right;
+        line-height: 45px;
+        font-family: "LPMQ Isep Misbah";
+        font-size: 18pt;        
     }
 
     input[type="checkbox"] {
@@ -131,6 +133,7 @@ $so = vquery($sql)[0];
                         ?>
                     </div>
                     <div class="form-group" style="padding-left:5px">
+                    <?php if($so['headeropsi']==NULL):?>
                         <table cellpadding="5px auto" cellspacing="2px">
                             <?php foreach ($getopsi as $id => $idopsi) : ?>
                                 <tr valign="top">
@@ -165,8 +168,59 @@ $so = vquery($sql)[0];
                                 </tr>
                             <?php endforeach ?>
                         </table>
-                    </div>
+                        <?php else :
+                            $hdr = explode(",", $so['headeropsi']);
+                        ?>
+                           <table class="table table-bordered table-sm table-condensed">
+                                        <thead>
+                                            <th width="7.5%" style="text-align:center">Pilihan</th>
+                                            <th style="text-align:center"><?php echo $hdr[0]; ?></th>
+                                            <th style="text-align:center"><?php echo $hdr[1]; ?></th>
+                                        </thead>
+                                        <tbody>
+                                        <?php foreach ($getopsi as $id => $idopsi) : ?>
+                                <tr>
+                                    <td valign="top" style="text-align:center;">
+                                        <?php
+                                        if ($id == 0) {
+                                            $val = 'A';
+                                        } else if ($id == 1) {
+                                            $val = 'B';
+                                        } else if ($id == 2) {
+                                            $val = 'C';
+                                        } else if ($id == 3) {
+                                            $val = 'D';
+                                        } else {
+                                            $val = 'E';
+                                        }
+                                        ?>
+                                        <div class="cc-selector">
+                                            <input id="<?php echo $val; ?>" class="opsi" type="radio" name="opsijwb" value="<?php echo $idopsi; ?>" <?php echo ($idopsi == $so['jwbbenar']) ? 'checked' : ''; ?>>
+                                            <label class="drinkcard-cc <?php echo $val; ?>" for="<?php echo $val; ?>"></label>
+                                        </div>
+                                    </td>
+                                    <td valign="top">
+                                        <?php
+                                        $qopsi = "SELECT opsi,opsialt FROM tbopsi WHERE idopsi='$idopsi'";
+                                        $op = vquery($qopsi)[0];
+                                        $ops = str_replace("/cbt/pictures/", "pictures/", $op['opsi']);
+                                        $opsi = str_replace("<img src=", "<img class='img img-fluid img-responsive' id='imageGallery' src=", $ops);
+                                        echo $opsi;
+
+                                        $opsa = str_replace("/cbt/pictures/", "pictures/", $op['opsialt']);
+                                        $opsialt = str_replace("<img src=", "<img class='img img-fluid img-responsive' id='imageGallery' src=", $opsa);
+                                    ?>
+                                    <td valign="top">
+                                        <?php echo $opsialt;?>
+                                    </td>
+                                </tr>
+                            <?php endforeach ?>
+                            </tbody>
+                        </table>
+                        <?php endif?>
+                        </div>
                 <?php endif ?>
+                
 
                 <!-- Soal Pilihan Ganda Kompleks-->
                 <?php if ($jnssoal == '2') : ?>
@@ -252,24 +306,41 @@ $so = vquery($sql)[0];
                         </style>
                         <div class="table-responsive-sm">
                             <table class="table table-condensed table-striped table-sm table-bordered" width="100%">
-                                <thead>
+                                <!-- <thead>
                                     <th style="text-align:center;">Pernyataan</th>
                                     <th style="text-align:center;width:12.5%">Benar</th>
                                     <th style="text-align:center;width:12.5%">Salah</th>
+                                </thead> -->                                
+                                <?php 
+                                $hdr=explode(",",$so['headeropsi']);
+                                $kol=count($hdr);
+                                ?>
+                                <thead>
+                                <?php for ($i=0;$i<$kol;$i++):
+                                    if($i==$kol-1 || $i==$kol-2){
+                                        $styl='text-align:center;width:12.5%';
+                                    }
+                                    else {
+                                        $styl='text-align:center;';
+                                    }
+                                ?>
+                                    <th style="<?php echo $styl;?>"><?php echo $hdr[$i];?></th>
+                                <?php endfor ?>
                                 </thead>
+                                <tbody>
                                 <?php foreach ($getopsi as $id => $idopsi) : ?>
                                     <tr>
                                         <td valign="top">
                                             <?php
-                                            $qopsi = "SELECT opsi FROM tbopsi WHERE idopsi='$idopsi'";
+                                            $qopsi = "SELECT opsi,opsialt FROM tbopsi WHERE idopsi='$idopsi'";
                                             $op = vquery($qopsi)[0];
                                             $opsi = $op['opsi'];
+                                            $opsialt=$op['opsialt'];
                                             echo $opsi;
                                             ?>
                                         </td>
                                         <td style="text-align:center">
                                             <input id="BtnBenar<?php echo $idopsi; ?>" type="radio" name="opsijwb<?php echo $idopsi; ?>" value="1" <?php echo (in_array($idopsi, $getbenar)) ? "checked" : ""; ?>>
-
                                         </td>
                                         <td style="text-align:center">
                                             <input id="BtnSalah<?php echo $idopsi; ?>" type="radio" name="opsijwb<?php echo $idopsi; ?>" value="0" <?php echo (in_array($idopsi, $getsalah)) ? "checked" : ""; ?>>
@@ -312,6 +383,7 @@ $so = vquery($sql)[0];
                                         })
                                     </script>
                                 <?php endforeach ?>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
@@ -333,10 +405,11 @@ $so = vquery($sql)[0];
                     <div class="form-group row mb-2">
                         <div class="col-sm-4">
                             <div class="container">
+                                <?php  $hdr=explode(",",$so['headeropsi']);?>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-bordered table-striped table-condensed table-sm" width="100%">
                                         <tr>
-                                            <td colspan="2" style="text-align: center;border-right:none;font-weight:bold">Istilah</td>
+                                            <td colspan="2" style="text-align: center;border-right:none;font-weight:bold"><?php echo $hdr[0];?></td>
                                         </tr>
                                         <?php
                                         $hrfso = [];
@@ -394,7 +467,7 @@ $so = vquery($sql)[0];
                                 <div class="table-responsive mt-2">
                                     <table class="table table-bordered table-striped table-condensed table-sm" width="100%">
                                         <tr>
-                                            <td colspan="2" style="text-align: center;border-right:none;font-weight:bold">Pengertian</td>
+                                            <td colspan="2" style="text-align: center;border-right:none;font-weight:bold"><?php echo $hdr[1];?></td>
                                         </tr>
                                         <?php
                                         $hrfopsi = [];
@@ -562,6 +635,13 @@ $so = vquery($sql)[0];
             <?php else : ?>
                 <button data-id="<?php echo $prev; ?>" class="btn btn-sm btn-secondary btn-block col-sm-8 btnPrev"> <i class="fas fa-arrow-circle-left"></i>&nbsp;<strong>Sebelumnya</strong></button>
             <?php endif ?>
+        </div>
+        <div class="col-sm-3 mb-2">
+            <!-- <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-warning btn-sm btn-block btnRagu">
+                    <input type="checkbox" autocomplete="off"> Ragu-ragu
+                </label>
+            </div> -->
         </div>
         <div class="col-sm-3">
             <?php if ($next <= $rowCount) : ?>

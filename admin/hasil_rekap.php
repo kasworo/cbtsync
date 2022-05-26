@@ -1,4 +1,6 @@
 <?php
+include "dbfunction.php";
+
 require_once "../assets/library/PHPExcel.php";
 require_once "../assets/library/excel_reader.php";
 
@@ -6,6 +8,12 @@ function GetMapel()
 {
 	return viewdata('tbmapel');
 }
+$user = array(
+	'username' => $_COOKIE['id']
+);
+
+$u = viewdata('tbuser', $user)[0];
+$level = $u['level'];
 if (isset($_POST['imprkp'])) {
 	if (empty($_FILES['tmpnilai']['tmp_name'])) {
 		echo "<script>
@@ -92,7 +100,6 @@ if (isset($_POST['imprkp'])) {
 	}
 }
 
-
 $qts = "SELECT u.idujian, u.nmujian, ts.nmtes FROM tbujian u INNER JOIN tbtes ts USING(idtes) INNER JOIN tbthpel t USING(idthpel) WHERE t.aktif='1' AND u.status='1'";
 $ts = vquery($qts)[0];
 $iduji = $ts['idujian'];
@@ -138,20 +145,24 @@ $iduji = $ts['idujian'];
 	<div class="card-header">
 		<h4 class="card-title">Rekap Hasil Ujian</h4>
 		<div class="card-tools">
-			<?php if ($level == '1') : ?>
-				<button class="btn btn-success btn-sm" id="btnUpdate">
-					<i class="fas fa-sync-alt"></i>&nbsp;Update
+			<form action="print_rekap.php" target="_blank" method="POST">
+				<?php if ($level == '1') : ?>
+					<button class="btn btn-success btn-sm" id="btnUpdate">
+						<i class="fas fa-sync-alt"></i>&nbsp;Update
+					</button>
+					<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myImportRekap">
+						<i class="fas fa-cloud-upload-alt"></i>&nbsp;Import
+					</button>
+				<?php endif ?>
+				<a href="index.php?p=rapor" target="_blank" class="btn btn-info btn-sm">
+					<i class="fas fa-list-alt"></i>&nbsp;Rapor
+				</a>
+				<input type="hidden" id="iduji" name="uji" value="<?php echo $_POST['uji']; ?>">
+				<input type="hidden" id="idrombel" name="rmb" value="<?php echo $_POST['rmb']; ?>">
+				<button type="submit" class="btn btn-sm btn-default">
+					<i class="fas fa-print"></i>&nbsp;Cetak
 				</button>
-				<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myImportRekap">
-					<i class="fas fa-cloud-upload-alt"></i>&nbsp;Import
-				</button>
-			<?php endif ?>
-			<a href="index.php?p=rapor" target="_blank" class="btn btn-info btn-sm">
-				<i class="fas fa-list-alt"></i>&nbsp;Rapor
-			</a>
-			<a href="print_rekap.php" target="_blank" class="btn btn-default btn-sm">
-				<i class="fas fa-print"></i>&nbsp;Cetak
-			</a>
+			</form>
 		</div>
 	</div>
 	<div class="card-body">
@@ -160,7 +171,7 @@ $iduji = $ts['idujian'];
 				<thead>
 					<tr>
 						<th style="text-align: center;width:2.5%">No.</th>
-						<th style="text-align: center;width:12.5%">No. Peserta</th>
+						<th style="text-align: center;width:15%">No. Induk</th>
 						<th style="text-align: center;">Nama Peserta</th>
 						<?php
 						$i = 0;
@@ -176,7 +187,7 @@ $iduji = $ts['idujian'];
 				<tbody>
 					<?php
 					if ($level == '1') {
-						$qrekap = "SELECT s.idsiswa, s.nmsiswa, s.nmpeserta, s.passwd, r.nmrombel, u.nmujian FROM tbpeserta s INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) INNER JOIN tbthpel t USING(idthpel) INNER JOIN tbujian u USING(idujian) WHERE u.status='1' AND t.aktif='1' AND s.nmpeserta<>'' GROUP BY s.idsiswa ORDER BY s.nmpeserta ASC";
+						$qrekap = "SELECT s.idsiswa, s.nmsiswa, s.nis, s.nisn, r.nmrombel, u.nmujian FROM tbpeserta s INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) INNER JOIN tbthpel t USING(idthpel) LEFT JOIN tbnilai n USING(idsiswa) LEFT JOIN tbujian u ON n.idujian=u.idujian WHERE u.idujian='$_POST[uji]' AND t.aktif='1' AND r.idrombel='$_POST[rmb]' GROUP BY s.idsiswa ORDER BY r.idrombel, s.nmsiswa";
 					} else {
 						$qrekap = "SELECT s.idsiswa, s.nmsiswa, s.nmpeserta, s.passwd, r.nmrombel, u.nmujian FROM tbpeserta s INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) INNER JOIN tbgtk g USING(idgtk) INNER JOIN tbthpel t USING(idthpel) INNER JOIN tbujian u USING(idujian) INNER JOIN tbuser us USING(username) WHERE u.status='1' AND t.aktif='1' AND s.nmpeserta<>'' AND us.username='$_COOKIE[id]' GROUP BY s.idsiswa ORDER BY s.idsiswa ASC";
 					}
@@ -190,7 +201,7 @@ $iduji = $ts['idujian'];
 								<?php echo $no . '.'; ?>
 							</td>
 							<td style="text-align:center">
-								<?php echo $s['nmpeserta']; ?>
+								<?php echo $s['nis'] . ' / ' . $s['nisn']; ?>
 							</td>
 							<td>
 								<?php echo ucwords(strtolower($s['nmsiswa'])); ?>
@@ -233,7 +244,7 @@ $iduji = $ts['idujian'];
 		});
 	})
 	$("#btnUpdate").click(function() {
-		var id = "<?php echo $iduji; ?>";
+		let id = "<?php echo $iduji; ?>";
 		$.ajax({
 			url: "hasil_update.php",
 			type: "POST",

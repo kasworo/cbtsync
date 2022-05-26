@@ -1,13 +1,10 @@
 <?php
 define("BASEPATH", dirname(__FILE__));
 include "dbfunction.php";
-if (isset($_COOKIE['pst']) && isset($_COOKIE['uji'])) :
-	$sqlset = "SELECT idset FROM tbsetingujian su INNER JOIN tbrombelsiswa USING(idrombel) WHERE idsiswa='$_COOKIE[pst]'";
+if (isset($_COOKIE['pst'])) :
+	$sqlset = "SELECT idset FROM tbsetingujian su INNER JOIN tbrombelsiswa USING(idrombel) WHERE idsiswa='$_COOKIE[pst]' AND su.idjadwal='$_COOKIE[jdw]'";
 	$ds = vquery($sqlset)[0];
-	$cekset = hash('sha256', $ds['idset']);
-	if ($cekset === $_COOKIE['uji']) {
-		$idset = $ds['idset'];
-	}
+	$idset = $ds['idset'];
 ?>
 	<style>
 		.kotak {

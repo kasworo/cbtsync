@@ -4,6 +4,7 @@ if (isset($_POST['konfirmasi'])) {
     $cek = cquery($qjd);
     if ($cek > 0) {
         $jd = vquery($qjd)[0];
+        setcookie('jdw', $jd['idjadwal']);
         header("Location: index.php?p=mulai");
     }
 }

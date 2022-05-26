@@ -2,12 +2,7 @@
 define("BASEPATH", dirname(__FILE__));
 require('../assets/library/fpdf/fpdf.php');
 include "dbfunction.php";
-function GetJadwal()
-{
-	$saiki = date('Y-m-d');
-	$sql = "SELECT jd.* FROM tbjadwal jd LEFT JOIN tbtoken tk USING(idjadwal) WHERE jd.tglujian='$saiki'";
-	return vquery($sql);
-}
+
 function DataSkul()
 {
 	return viewdata('tbskul')[0];
@@ -18,10 +13,15 @@ function DataThpel()
 }
 function DataUjian()
 {
-	$sql = "SELECT nmtes FROM tbujian u INNER JOIN tbtes t USING(idtes) WHERE u.status = '1'";
+	$sql = "SELECT nmtes FROM tbujian u INNER JOIN tbtes t USING(idtes) WHERE u.idujian = '$_POST[uji]'";
 	return vquery($sql)[0];
 }
 
+function IsiGuru($r, $m)
+{
+	$sqlp = "SELECT g.nama, g.nip FROM tbpengampu pg INNER JOIN tbgtk g USING(idgtk) INNER JOIN tbmapel mp USING(idmapel) INNER JOIN tbrombel rb USING(idrombel)INNER JOIN tbthpel tp USING(idthpel) WHERE tp.aktif='1' AND pg.idrombel='$r' AND pg.idmapel='$m'";
+	return vquery($sqlp)[0];
+}
 class PDF extends FPDF
 {
 	function Header()
@@ -55,9 +55,12 @@ class PDF extends FPDF
 		$this->Cell(16.25, 0.5, strtoupper($nmuji), 0, 0, 'C', 0);
 		$this->Ln();
 		$this->Cell(1.75, 0.5, '');
+		$this->Cell(16.25, 0.5, strtoupper($namsek), 0, 0, 'C', 0);
+		$this->Ln();
+		$this->Cell(1.75, 0.5, '');
 		$this->Cell(16.25, 0.5, strtoupper('Tahun Pelajaran ') . $thpel, 0, 0, 'C', 0);
 		$this->SetLineWidth(0.05);
-		$this->Line(1.0, 2.5, 20.0, 2.5);
+		$this->Line(1.0, 2.75, 20.0, 2.75);
 		$this->Ln(1.25);
 		$this->SetLineWidth(0.015);
 	}
@@ -131,17 +134,23 @@ class PDF extends FPDF
 		$this->Ln();
 	}
 
-	function IsiData($r, $m, $hal)
+	function IsiData($r, $m, $u, $hal)
 	{
+		$this->JudulKolom($u);
 		if ($hal == 1) {
 			$opset = 0;
 			$i = 0;
+			$this->IsiNilai($i, $r, $m, $u, $opset);
 		} else {
 			$i = 25;
 			$opset = 25;
+			$this->IsiNilai($i, $r, $m, $u, $opset);
+			$this->IsiKeterangan($r, $m);
 		}
-		$this->JudulKolom();
-		$qisi = "SELECT ps.nmsiswa, ps.nmpeserta, ps.nis, ps.nisn, ni.jmlsoal, ni.benar, ni.salah, ni.nilai FROM tbpeserta ps INNER JOIN tbnilai ni USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) INNER JOIN tbujian u ON ni.idujian=u.idujian WHERE rs.idrombel='$r' AND ni.idmapel='$m' AND u.status='1' LIMIT 25 OFFSET $opset";
+	}
+	function IsiNilai($i, $r, $m, $u, $opset)
+	{
+		$qisi = "SELECT ps.nmsiswa, ps.nmpeserta, ps.nis, ps.nisn, ni.jmlsoal, ni.benar, ni.salah, ni.nilai FROM tbpeserta ps INNER JOIN tbnilai ni USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) INNER JOIN tbujian u ON ni.idujian=u.idujian WHERE rs.idrombel='$r' AND ni.idmapel='$m' AND u.idujian='$u' ORDER BY ps.nmsiswa LIMIT 25 OFFSET $opset";
 		//var_dump($qisi);
 		$dt = vquery($qisi);
 		$this->SetFont('Arial', '', '10');
@@ -158,48 +167,37 @@ class PDF extends FPDF
 		}
 	}
 
-	function IsiKeterangan()
+	function IsiKeterangan($r, $m)
 	{
 		$this->SetFont('Arial', 'BI', '11');
-		$this->Cell(5, 1, "Keterangan :", 0, 0, 'L');
+		$this->Cell(5, 1, "Keterangan :");
 		$this->Ln(0.725);
 		$this->SetFont('Arial', '', '11');
-		$this->Cell(0.575, 0.675, "1.", 0, 'L');
-		$this->Cell(17.5, 0.675, "Daftar hadir dibuat rangkap 2 (dua), masing-masing  untuk panitia, dan guru bidang studi.", 0, 'L');
-		$this->Ln(0.725);
-		$this->Cell(0.575, 0.675, "2.", 0, 'L');
-		$this->Cell(17.5, 0.675, "Pengawas ruang menyilang Nama dan Nomor Peserta yang tidak hadir.", 0, 'L');
+		$this->Cell(17.5, 0.675, "Daftar Nilai dibuat rangkap 2 (dua), masing-masing  untuk panitia, dan guru bidang studi.");
 		$this->Ln(1.25);
-		$this->Cell(7, 0.675, " Jumlah Peserta Seharusnya", 'TL', 0, 'L');
-		$this->Cell(3, 0.675, " : _____ orang", 'TR', 0, 'L');
-		$this->Cell(2, 0.675);
-		$this->Cell(9, 0.675, "Pengawas Ujian,", 0, 0, 'L');
-		$this->Ln(0.75);
-		$this->Cell(7, 0.675, " Jumlah Peserta Tidak Hadir", 'L', 0, 'L');
-		$this->Cell(3, 0.675, " : _____ orang", 'R', 0, 'L');
-		$this->Cell(2, 0.675);
-		$this->Ln();
-		$this->Cell(7, 0.675, " Jumlah Peserta Hadir", 'LB', 0, 'L');
-		$this->Cell(3, 0.675, " : _____ orang", 'BR', 0, 'L');
-		$this->Cell(2, 0.675);
-		$this->Ln();
 		$this->Cell(12, 0.575);
-		$this->Cell(9, 0.5, "..............................................................", 0, 0, 'L');
+		$gr = IsiGuru($r, $m);
+		$this->Cell(9, 0.675, "Guru Bidang Studi,", 0, 0, 'L');
+		$this->Ln(0.75);
+		$this->Ln(1.5);
+		$this->Cell(12, 0.575);
+		$this->Cell(9, 0.5, $gr['nama'], 0, 0, 'L');
 		$this->Ln();
 		$this->Cell(12, 0.5, "", 0, 0, 'C');
-		$this->Cell(9, 0.5, "NIP. ");
+		if ($gr['nip'] !== 'Non PNS') {
+			$this->Cell(9, 0.5, "NIP. " . $gr['nip']);
+		}
 	}
 
-	function Cetak($r, $m)
+	function Cetak($r, $m, $u)
 	{
-		$qisi = "SELECT ps.nmsiswa, ps.nisn, ps.nis, r.nmrombel FROM tbpeserta ps INNER JOIN tbnilai ni USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) WHERE rs.idrombel='$r' AND ni.idmapel='$m'";
-
+		$qisi = "SELECT ps.nmsiswa, ps.nisn, ps.nis, r.nmrombel FROM tbpeserta ps INNER JOIN tbnilai ni USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel r USING(idrombel) WHERE rs.idrombel='$r' AND ni.idmapel='$m' AND ni.idujian='$u'";
 		$nsiswa = cquery($qisi);
 		$hal = ceil($nsiswa / 25);
 		for ($i = 1; $i <= $hal; $i++) {
 			$this->AddPage();
 			$this->Judul($r, $m);
-			$this->IsiData($r, $m, $i);
+			$this->IsiData($r, $m, $u, $i);
 		}
 	}
 }
@@ -207,9 +205,5 @@ class PDF extends FPDF
 $pdf = new PDF('P', 'cm', 'A4');
 $pdf->AliasNbPages();
 $pdf->SetMargins(1.15, 0.575, 0.75);
-$sql = "SELECT p.idrombel, p.idmapel FROM tbpengampu p WHERE p.idrombel='$_POST[rmb]' AND p.idmapel='$_POST[map]'";
-$qr = vquery($sql);
-foreach ($qr as $r) {
-	$pdf->Cetak($r['idrombel'], $r['idmapel']);
-}
+$pdf->Cetak($_POST['rmb'], $_POST['map'], $_POST['uji']);
 $pdf->Output();

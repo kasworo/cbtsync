@@ -1,15 +1,14 @@
 <?php
-define('setclient', 'c:/xampp/htdocs/newcbt/');
 $host = "localhost";
 $user = "root";
-$pwd = "";
+$pwd = "Gemini84Ok";
 $db = "dbcbtnew";
 $conn = new mysqli($host, $user, $pwd, $db);
 if (mysqli_connect_errno()) {
 	echo "Error: Could not connect to database. ";
 	exit;
 }
-
+date_default_timezone_set('Asia/Jakarta');
 function indonesian_date($date)
 {
 	$indonesian_month = array(

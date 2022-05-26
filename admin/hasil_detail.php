@@ -1,76 +1,62 @@
+<?php
+$sqlu = "SELECT  ps.nmpeserta, ps.idsiswa, ps.nmsiswa, rb.nmrombel, bs.idbank, su.idset, COUNT(jwb.idset) as soal, ROUND(SUM(skor),2) as benar FROM tbjawaban jwb INNER JOIN tbpeserta ps USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel rb USING(idrombel) INNER JOIN tbsetingujian su USING(idset) INNER JOIN tbjadwal jd USING(idjadwal) INNER JOIN tbujian u ON u.idujian=jd.idujian  INNER JOIN tbbanksoal bs USING(idbank) WHERE bs.idmapel='$_POST[idmap]' AND bs.idujian='$_POST[iduji]' AND rs.idrombel='$_POST[idrmb]' GROUP BY jwb.idset, jwb.idsiswa";
+$qu = vquery($sqlu);
+?>
 <div class="col-sm-12">
 	<div class="card card-secondary card-outline">
 		<div class="card-header">
-			<h4 class="card-title">Data Peserta Tes</h4>
+			<h4 class="card-title">Ringkasan Hasil Tes</h4>
 			<div class="card-tools">
-				<a href="index.php?p=hasiltes" class="btn btn-primary btn-sm">
-					<i class="fas fa-arrow-left"></i>&nbsp;Kembali
-				</a>
-				<a href="hasil_analisis.php?id=<?php echo $_GET['id'];?>" target="_blank" class="btn btn-success btn-sm">
-					<i class="far fa-file-excel"></i>&nbsp;Analisis
-				</a>
-				<?php if(isset($_GET['r'])):?>
-				<a href="print_hasil.php?id=<?php echo $_GET['id'].'&r='.$_GET['r'];?>" target="_blank" class="btn btn-default btn-sm">
-					<i class="fas fa-file-pdf"></i>&nbsp;Cetak
-				</a>
-				<?php else:?>
-				<a href="print_hasil.php?id=<?php echo $_GET['id'];?>" target="_blank" class="btn btn-default btn-sm">
-					<i class="fas fa-file-pdf"></i>&nbsp;Cetak
-				</a>
-				<?php endif ?>
+				<button class="btn btn-sm btn-default col-xs-6" id="btnHasil">
+					<i class="fas fa-arrow-circle-left"></i>&nbsp;Kembali
+				</button>
 			</div>
 		</div>
 		<div class="card-body">
 			<div class="table-responsive">
-				<table id="tbpeserta" class="table table-bordered table-striped table-sm">
+				<table id="tbhasiltes" class="table table-bordered table-striped table-sm">
 					<thead>
-					<tr>
-						<th style="text-align: center;width:2.5%">No.</th>
-						<th style="text-align: center;width:12.5%">No. Peserta</th>
-						<th style="text-align: center;">Nama Peserta</th>
-						<th style="text-align: center;width:12.5%">Kelas</th>
-						<th style="text-align: center;width:12.5%">Skor</th>
-						<th style="text-align:center;width:12.5%">Detail</th>
-					</tr>
+						<tr>
+							<th style="text-align: center;width:2.5%">No.</th>
+							<th style="text-align: center;width:12.5%">No. Peserta</th>
+							<th style="text-align: center;">Nama Peserta</th>
+							<th style="text-align: center;width:12.5%">Kelas</th>
+							<th style="text-align: center;width:12.5%">Hasil</th>
+							<th style="text-align:center;width:12.5%">Detail</th>
+						</tr>
 					</thead>
 					<tbody>
-					<?php
-						if(isset($_GET['r'])){
-							$sql="SELECT ps.idsiswa, ps.nmsiswa, ps.nmpeserta,rb.idrombel, rb.nmrombel, bs.idbank, SUM(jw.skor) as benar FROM tbpeserta ps INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel rb USING(idrombel) INNER JOIN tbthpel t USING(idthpel) INNER JOIN tbjawaban jw USING(idsiswa) INNER JOIN tbsoal so USING(idbutir) INNER JOIN tbbanksoal bs USING(idbank) WHERE bs.idbank='$_GET[id]' AND rb.idrombel='$_GET[r]' AND t.aktif='1' GROUP BY jw.idsiswa, bs.idbank";
-							
-						}
-						else{
-							$sql="SELECT ps.idsiswa, ps.nmsiswa, ps.nmpeserta,rb.idrombel, rb.nmrombel, bs.idbank, SUM(jw.skor) as benar FROM tbpeserta ps INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel rb USING(idrombel) INNER JOIN tbthpel t USING(idthpel) INNER JOIN tbjawaban jw USING(idsiswa) INNER JOIN tbsoal so USING(idbutir) INNER JOIN tbbanksoal bs USING(idbank) WHERE bs.idbank='$_GET[id]' AND t.aktif='1' GROUP BY jw.idsiswa, bs.idbank";
-						}
-						$no=0;
-						$qs=$conn->query($sql);
-						while($s=$qs->fetch_array())
-						{
-                        	$no++;                        
-					?>
-					<tr>
-						<td style="text-align:center">
-						<?php echo $no.'.';?>
-						</td>
-						<td style="text-align:center">
-						<?php echo $s['nmpeserta'];?>
-						</td>
-						<td>
-						<?php echo ucwords(strtolower($s['nmsiswa']));?>
-						</td>
-                        <td style="text-align:center">
-						    <?php echo $s['nmrombel'];?>
-						</td>
-                        <td style="text-align:center">
-                            <?php echo number_format($s['benar'],2,',','.');?>
-						</td>
-                        <td style="text-align:center">
-						    <a href="index.php?p=jawabantes&id=<?php echo $s['idbank'];?>&pst=<?php echo $s['idsiswa'];?>" class="btn btn-xs btn-info col-8 <?php echo $bdg;?>">
-								<i class="fas fa-eye"></i>&nbsp;Detail
-							</a>
-						</td>
-					</tr>
-					<?php } ?>
+						<?php
+						$no = 1;
+						foreach ($qu as $s) :
+						?>
+							<tr>
+								<td style="text-align:center">
+									<?php echo $no++ . '.'; ?>
+								</td>
+								<td style="text-align:center">
+									<?php echo $s['nmpeserta']; ?>
+								</td>
+								<td>
+									<?php echo ucwords(strtolower($s['nmsiswa'])); ?>
+								</td>
+								<td style="text-align:center">
+									<?php echo $s['nmrombel']; ?>
+								</td>
+								<td style="text-align:center">
+									<?php echo $s['benar'] . ' dari ' . $s['soal']; ?>
+								</td>
+								<td style="text-align:center">
+									<form action="index.php?p=jawabantes" method="POST">
+										<input type="hidden" id="idbank" name="idset" value="<?php echo $s['idset']; ?>">
+										<input type="hidden" id="idsiswa" name="idsw" value="<?php echo $s['idsiswa']; ?>">
+										<button type="submit" class="btn btn-xs btn-primary col-xs-6">
+											<i class="fas fa-list"></i>&nbsp;Detail
+										</button>
+									</form>
+								</td>
+							</tr>
+						<?php endforeach ?>
 					</tbody>
 				</table>
 			</div>
@@ -78,8 +64,26 @@
 	</div>
 </div>
 <script type="text/javascript">
-	$(function () {
-		$('#tbpeserta').DataTable({
+	$("#btnHasil").click(function() {
+		let data = new FormData()
+		data.append('uji', "<?php echo $_POST['iduji']; ?>");
+		// data.append('kls', kls);
+		data.append('rmb', "<?php echo $_POST['idrmb']; ?>");
+		$.ajax({
+			url: "hasil_tes.php",
+			type: 'POST',
+			data: data,
+			processData: false,
+			contentType: false,
+			cache: false,
+			timeout: 8000,
+			success: function(respons) {
+				$("#konten").html(respons)
+			}
+		})
+	})
+	$(function() {
+		$('#tbhasiltes').DataTable({
 			"paging": true,
 			"lengthChange": true,
 			"searching": true,
@@ -87,6 +91,6 @@
 			"info": true,
 			"autoWidth": false,
 			"responsive": true,
-		});
-	})
+		})
+	});
 </script>

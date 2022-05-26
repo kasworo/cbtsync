@@ -47,6 +47,25 @@ foreach ($prm as $pr) {
 	$ce[] = $pr['cewek'];
 }
 $jmlce = json_encode($ce);
+$skrg = date('Y-m-d');
+
+
+$qpsesi = "SELECT COUNT(ps.idsiswa) as kabeh FROM tbpeserta ps INNER JOIN tbujian u USING(idujian) WHERE u.status='1'";
+$ses = vquery($qpsesi)[0];
+$kabeh = $ses['kabeh'];
+
+$qpst = "SELECT SUM(CASE WHEN lp.status = '0' THEN 1 ELSE 0 END) as sedang, SUM(CASE WHEN lp.status = '1' THEN 1 ELSE 0 END) as rampung, COUNT(*) as semua FROM tblogpeserta lp INNER JOIN tbtoken tk USING(idjadwal) INNER JOIN tbjadwal jd USING(idjadwal) WHERE jd.tglujian='$skrg' AND tk.status='1'";
+if (cquery($qpst) > 0) {
+	$ps = vquery($qpst)[0];
+	$sedang = $ps['sedang'];
+	$rampung = $ps['rampung'];
+	$semua = $ps['semua'];
+} else {
+	$sedang = 0;
+	$rampung = 0;
+}
+$stat = array($kabeh - $semua, $sedang, $rampung);
+$statistik = json_encode($stat);
 ?>
 <script type="text/javascript">
 	$(function() {
@@ -58,7 +77,7 @@ $jmlce = json_encode($ce);
 					backgroundColor: 'rgba(60,141,188,0.9)',
 					borderColor: 'rgba(60,141,188,0.8)',
 					pointRadius: true,
-					pointColor: '#3b8bba',
+					pointColor: 'rgba(210, 21,0, 1)',
 					pointStrokeColor: 'rgba(60,141,188,1)',
 					pointHighlightFill: '#fff',
 					pointHighlightStroke: 'rgba(60,141,188,1)',
@@ -66,10 +85,10 @@ $jmlce = json_encode($ce);
 				},
 				{
 					label: 'Perempuan',
-					backgroundColor: 'rgba(210, 214, 222, 1)',
-					borderColor: 'rgba(210, 214, 222, 1)',
+					backgroundColor: 'rgba(210, 21,0, 1)',
+					borderColor: 'rgba(210, 21,0, 1)',
 					pointRadius: true,
-					pointColor: 'rgba(210, 214, 222, 1)',
+					pointColor: 'rgba(0,0,255, 1)',
 					pointStrokeColor: '#c1c7d1',
 					pointHighlightFill: '#fff',
 					pointHighlightStroke: 'rgba(220,220,220,1)',
@@ -99,13 +118,13 @@ $jmlce = json_encode($ce);
 		let donutChartCanvas = $('#hslChart').get(0).getContext('2d')
 		let donutData = {
 			labels: [
-				'Sudah Selesai',
-				'Sedang Mengerjakan',
 				'Belum Login',
+				'Sedang Mengerjakan',
+				'Selesai',
 			],
 			datasets: [{
-				data: ['10', '20', '23'],
-				backgroundColor: ['rgba(200,10,10,0.9)', 'rgba(0,250,0,0.9)', 'rgba(100,100,0,0.9)'],
+				data: <?php echo $statistik; ?>,
+				backgroundColor: ['rgba(100,100,100,0.9)', 'rgba(132,180,100,0.9)', 'rgba(200,10,10,0.9)'],
 			}]
 		}
 		let donutOptions = {

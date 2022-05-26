@@ -1,10 +1,10 @@
 <?php
-if (!empty($_COOKIE['pst']) && !empty($_COOKIE['uji'])) :
-	$sqlset = "SELECT su.idset, su.idjadwal FROM tbsetingujian su INNER JOIN tbrombelsiswa USING(idrombel) WHERE idsiswa='$_COOKIE[pst]'";;
+if (!empty($_COOKIE['pst'])) :
+	$sqlset = "SELECT su.idset, su.idjadwal FROM tbsetingujian su INNER JOIN tbrombelsiswa USING(idrombel) WHERE idsiswa='$_COOKIE[pst]' AND su.idjadwal='$_COOKIE[jdw]'";;
 	$ds = vquery($sqlset)[0];
 	$idset = $ds['idset'];
 	$idjadwal = $ds['idjadwal'];
-	$qwk = "SELECT lp.sisawaktu, hal FROM tblogpeserta lp INNER JOIN tbjadwal jd USING(idjadwal) WHERE lp.idjadwal='$idjadwal' AND idsiswa='$_COOKIE[pst]'";
+	$qwk = "SELECT lp.sisawaktu, hal FROM tblogpeserta lp INNER JOIN tbjadwal jd USING(idjadwal) WHERE lp.idjadwal='$_COOKIE[jdw]' AND idsiswa='$_COOKIE[pst]'";
 	$wk = vquery($qwk)[0];
 	$hal = $wk['hal'];
 	if ($hal <= 1) {

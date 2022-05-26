@@ -24,7 +24,6 @@ if (cquery($qpst) > 0) {
             'tipe' => 'd-none'
         );
     } else {
-        setcookie('uji', hash('sha256', $pst['idset']));
         if ($pst['tampil'] == '1') {
             $data = array(
                 'token' => '1',

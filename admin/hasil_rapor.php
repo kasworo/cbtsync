@@ -1,6 +1,6 @@
 <?php
-$du = viewdata('tbujian', array('status' => '1'))[0];
-$idujian = $du['idujian'];
+include "dbfunction.php";
+$idujian = $_POST['uji'];
 if (isset($_POST['setrapor'])) {
 	$keyset = array('idujian' => $idujian);
 	$data = array(
@@ -13,6 +13,13 @@ if (isset($_POST['setrapor'])) {
 		$row = adddata('tbsetrapor', $data);
 	}
 }
+
+$user = array(
+	'username' => $_COOKIE['id']
+);
+
+$u = viewdata('tbuser', $user)[0];
+$level = $u['level'];
 ?>
 <div class="modal fade" id="mySetRapor" aria-modal="true">
 	<div class="modal-dialog">
@@ -58,12 +65,16 @@ if (isset($_POST['setrapor'])) {
 	<div class="card-header">
 		<h4 class="card-title">Rekap Rapor</h4>
 		<div class="card-tools">
-			<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#mySetRapor" data-id="<?php echo $idujian; ?>" id="btnSeting">
-				<i class="fa fa-cog"></i>&nbsp;Setting
-			</button>
-			<a href="print_rapor.php" target="_blank" class="btn btn-default btn-sm">
-				<i class="fas fa-print"></i>&nbsp;Cetak
-			</a>
+			<form action="print_rapor.php" method="POST" target="_blank">
+				<a href="#" class="btn btn-success btn-sm" data-toggle="modal" data-target="#mySetRapor" data-id="<?php echo $idujian; ?>" id="btnSeting">
+					<i class="fa fa-cog"></i>&nbsp;Setting
+				</a>
+				<input type="hidden" name="uji" value="<?php echo $idujian; ?>">
+				<input type="hidden" name="rmb" value="<?php echo $_POST['rmb']; ?>">
+				<button type="submit" class="btn btn-default btn-sm">
+					<i class="fas fa-print"></i>&nbsp;Cetak
+				</button>
+			</form>
 		</div>
 	</div>
 	<div class="card-body">
@@ -72,7 +83,7 @@ if (isset($_POST['setrapor'])) {
 				<thead>
 					<tr>
 						<th style="text-align: center;width:2.5%">No.</th>
-						<th style="text-align: center;width:12.5%">No. Peserta</th>
+						<th style="text-align: center;width:17.5%">No. Induk</th>
 						<th style="text-align: center;">Nama Peserta</th>
 						<th style="text-align: center;width:12.5%">Kelas</th>
 						<th style="text-align:center;width:10%">Jumlah</th>
@@ -83,11 +94,13 @@ if (isset($_POST['setrapor'])) {
 				<tbody>
 					<?php
 					if ($level == '1') {
-						$sqlr = "SELECT s.idsiswa, s.nmsiswa, s.nmpeserta, COUNT(n.nilai)as cacah, SUM(ROUND(n.nilai,2)) as jml, AVG(ROUND(n.nilai,2)) as rata, rb.nmrombel, u.idthpel FROM tbnilai n INNER JOIN tbmapel mp USING(idmapel) INNER JOIN tbpeserta s USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel rb USING(idrombel) INNER JOIN tbujian u ON s.idujian=u.idujian AND s.idujian=n.idujian INNER JOIN tbthpel t ON t.idthpel=rb.idthpel AND t.idthpel=u.idthpel WHERE t.aktif='1' AND u.status='1' GROUP BY n.idsiswa, n.idujian ORDER BY rata DESC";
+						$sqlr = "SELECT s.idsiswa, s.nmsiswa, s.nis, s.nisn, COUNT(n.nilai)as cacah, SUM(ROUND(n.nilai,2)) as jml, AVG(ROUND(n.nilai,2)) as rata, rb.nmrombel, u.idthpel FROM tbnilai n INNER JOIN tbmapel mp USING(idmapel) INNER JOIN tbpeserta s USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel rb USING(idrombel) INNER JOIN tbujian u ON u.idujian=n.idujian INNER JOIN tbthpel t ON t.idthpel=rb.idthpel AND t.idthpel=u.idthpel WHERE t.aktif='1' AND u.idujian='$_POST[uji]' AND rb.idrombel='$_POST[rmb]' GROUP BY n.idsiswa, n.idujian ORDER BY rata DESC";
 					}
 					if ($level == '2') {
-						$sqlr = "SELECT s.idsiswa, s.nmsiswa, s.nmpeserta, COUNT(n.nilai)as cacah, SUM(ROUND(n.nilai,2)) as jml, AVG(ROUND(n.nilai,2)) as rata, rb.nmrombel, u.idthpel FROM tbnilai n INNER JOIN tbmapel mp USING(idmapel) INNER JOIN tbpeserta s USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel rb USING(idrombel) INNER JOIN tbgtk g USING(idgtk) INNER JOIN tbujian u ON s.idujian=u.idujian AND s.idujian=n.idujian INNER JOIN tbthpel t ON t.idthpel=rb.idthpel AND t.idthpel=u.idthpel INNER JOIN tbuser us USING(username) WHERE us.username='$_COOKIE[id]' AND t.aktif='1' AND u.status='1' GROUP BY n.idsiswa, n.idujian ORDER BY rata DESC";
+						$sqlr = "SELECT s.idsiswa, s.nmsiswa, s.nis, s.nisn, COUNT(n.nilai)as cacah, SUM(ROUND(n.nilai,2)) as jml, AVG(ROUND(n.nilai,2)) as rata, rb.nmrombel, u.idthpel FROM tbnilai n INNER JOIN tbmapel mp USING(idmapel) INNER JOIN tbpeserta s USING(idsiswa) INNER JOIN tbrombelsiswa rs USING(idsiswa) INNER JOIN tbrombel rb USING(idrombel) INNER JOIN tbgtk g USING(idgtk) INNER JOIN tbujian u ON s.idujian=u.idujian AND s.idujian=n.idujian INNER JOIN tbthpel t ON t.idthpel=rb.idthpel AND t.idthpel=u.idthpel INNER JOIN tbuser us USING(username) WHERE us.username='$_COOKIE[id]' AND t.aktif='1' AND u.status='1' GROUP BY n.idsiswa, n.idujian ORDER BY rata DESC";
 					}
+					// var_dump($sqlr);
+					// die;
 					$no = 0;
 					$qs = vquery($sqlr);
 					foreach ($qs as $s) :
@@ -98,7 +111,7 @@ if (isset($_POST['setrapor'])) {
 								<?php echo $no . '.'; ?>
 							</td>
 							<td style="text-align:center">
-								<?php echo $s['nmpeserta']; ?>
+								<?php echo $s['nis'] . ' / ' . $s['nisn']; ?>
 							</td>
 							<td>
 								<?php echo ucwords(strtolower($s['nmsiswa'])); ?>
@@ -113,9 +126,14 @@ if (isset($_POST['setrapor'])) {
 								<?php echo number_format($s['rata'], 2, ',', '.'); ?>
 							</td>
 							<td style="text-align:center">
-								<a href="print_rapor.php?id=<?php echo $s['idsiswa']; ?>" target="_blank" class="btn btn-secondary btn-xs">
-									<i class="fas fa-print"></i> Cetak
-								</a>
+								<form action="print_rapor.php" method="post" target="_blank">
+									<input type="hidden" name="id" value="<?php echo $s['idsiswa']; ?>">
+									<input type="hidden" name="rmb" value="<?php echo $_POST['rmb']; ?>">
+									<input type="hidden" name="uji" value="<?php echo $idujian; ?>">
+									<button type="submit" class="btn btn-secondary btn-xs">
+										<i class="fas fa-print"></i> Cetak
+									</button>
+								</form>
 							</td>
 						</tr>
 					<?php endforeach ?>
@@ -143,18 +161,23 @@ if (isset($_POST['setrapor'])) {
 			format: 'Y-m-d'
 		})
 		$("#btnSeting").click(function() {
-			$("#mdSetRaporJdl").html("Ubah Setting Cetak Rapor");
-			$("#btnSimpan").html("<i class='fas fa-save'></i>&nbsp;Update");
-			let id = $(this).data('id');
+			let data = new FormData()
+			data.append('id', $(this).data('id'))
 			$.ajax({
 				url: 'hasil_raporset.php',
 				type: 'post',
 				dataType: 'json',
-				data: 'id=' + id,
+				data: data,
+				processData: false,
+				contentType: false,
+				cache: false,
+				timeout: 8000,
 				success: function(rsp) {
-					$("#idset").val(rsp.idsetrapor);
-					$("#tmpterbit").val(rsp.tmpterbit);
-					$("#tglterbit").val(rsp.tglterbit);
+					$("#mdSetRaporJdl").html(rsp.judul)
+					$("#btnSimpan").html(rsp.tombol)
+					$("#idset").val(rsp.idsetrapor)
+					$("#tmpterbit").val(rsp.tmpterbit)
+					$("#tglterbit").val(rsp.tglterbit)
 
 				}
 			})

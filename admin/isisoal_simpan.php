@@ -51,7 +51,7 @@ if ($_POST['aksi'] == 'simpan') {
 				'jnssoal' => $_POST['js'],
 				'modeopsi' => $_POST['mo'],
 				'tksukar' => $_POST['tk'],
-				'butirsoal' => $soal,
+				'butirsoal' => $butir,
 				'skormaks' => $_POST['sk'],
 				'nomersoal' => $_POST['nm'],
 				'headeropsi' => $header
@@ -86,9 +86,11 @@ if ($_POST['aksi'] == 'simpan') {
 	if ($row == 1) {
 		for ($i = 1; $i < $jml; $i++) {
 			$isiopsi = GetOpsine($key);
+			$ops = explode("#", $arr[$i]);
 			$opsine = array(
 				'idbutir' => GetIdButir($key),
-				'opsi' => $arr[$i],
+				'opsi' => $ops[0],
+				'opsialt' => $ops[1],
 				'benar' => '0',
 				'skor' => '0'
 			);
