@@ -6,10 +6,18 @@ $qu = vquery($sqlu);
 	<div class="card card-secondary card-outline">
 		<div class="card-header">
 			<h4 class="card-title">Ringkasan Hasil Tes</h4>
-			<div class="card-tools">
-				<button class="btn btn-sm btn-default col-xs-6" id="btnHasil">
-					<i class="fas fa-arrow-circle-left"></i>&nbsp;Kembali
-				</button>
+			<div class="card-tools justify-content-between">
+				<form action="print_analisis.php" target="_blank" method="POST">
+					<input type="hidden" id="iduji" name="uji" value="<?php echo $_POST['iduji']; ?>">
+					<input type="hidden" id="idmapel" name="map" value="<?php echo $_POST['idmap']; ?>">
+					<input type="hidden" id="idrombel" name="rmb" value="<?php echo $_POST['idrmb']; ?>">
+					<button type="submit" class="btn btn-sm btn-danger">
+						<i class="far fa-file-pdf"></i>&nbsp;&nbsp;Analisis
+					</button>
+					<a class="btn btn-sm btn-default" id="btnHasil">
+						<i class="fas fa-arrow-circle-left"></i>&nbsp;&nbsp;Kembali
+					</a>
+				</form>
 			</div>
 		</div>
 		<div class="card-body">
@@ -22,7 +30,7 @@ $qu = vquery($sqlu);
 							<th style="text-align: center;">Nama Peserta</th>
 							<th style="text-align: center;width:12.5%">Kelas</th>
 							<th style="text-align: center;width:12.5%">Hasil</th>
-							<th style="text-align:center;width:12.5%">Detail</th>
+							<th style="text-align:center;width:12.5%">Aksi</th>
 						</tr>
 					</thead>
 					<tbody>

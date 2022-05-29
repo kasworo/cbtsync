@@ -12,13 +12,13 @@ $level = $u['level'];
 		<h4 class="card-title">Laporan Hasil Ujian</h4>
 		<div class="card-tools">
 			<a href="#myLaporTes" class="btn btn-sm btn-default btnReport" data-toggle="modal" data-id="2">
-				<i class="fas fa-list-alt nav-icon"></i>&nbsp;Rekap Hasil Tes
+				<i class="fas fa-list-alt nav-icon"></i>&nbsp;Rekap
 			</a>
 			<a href="#myLaporTes" class="btn btn-sm btn-default btnReport" data-toggle="modal" data-id="3">
-				<i class="fas fa-list-alt nav-icon"></i>&nbsp;Rapor Murni
+				<i class="fas fa-list-alt nav-icon"></i>&nbsp;Rapor
 			</a>
 			<a href="#myLaporTes" class="btn btn-sm btn-default btnReport" data-toggle="modal" data-id="1">
-				<i class="fas fa-list-alt nav-icon"></i>&nbsp;Hasil Tes Lain
+				<i class="fas fa-list-alt nav-icon"></i>&nbsp;Hasil
 			</a>
 		</div>
 	</div>

@@ -71,11 +71,6 @@ class PDF extends FPDF
 	{
 		$ad = getDataSkul();
 		$logsek = $ad['logoskul'];
-		// $quji = $conn->query("SELECT u.idthpel, u.idujian, t.nmtes, th.nmthpel, th.desthpel FROM tbujian u INNER JOIN tbtes t USING(idtes) INNER JOIN tbthpel th USING(idthpel) WHERE u.status='1'");
-		// $uji = $quji->fetch_array();
-		// $nmuji = strtoupper($uji['nmtes']);
-		// $thpel = substr($uji['desthpel'], 0, 9);
-
 		if ($logsek == '') {
 			$logo = '../images/tutwuri.jpg';
 		} else {
@@ -122,7 +117,6 @@ class PDF extends FPDF
 		$this->Cell(1.75, 0.75, 'Rerata', 'LTB', 0, 'C');
 		$this->Cell(2.0, 0.75, 'Ket.', 'LTBR', 0, 'C');
 		$this->Ln();
-		$this->SetFont('Arial', '', '10');
 	}
 	function Judul($id, $i)
 	{
@@ -153,9 +147,8 @@ class PDF extends FPDF
 
 	function Footer()
 	{
-		global $conn;
-		$sqlad0 = $conn->query("SELECT a.idjenjang, j.akjenjang, a.nmskpd, a.kec, r.nmrayon, p.nmprov FROM tbskul a INNER JOIN tbjenjang j ON j.idjenjang=a.idjenjang INNER JOIN tbrayon r ON a.idrayon=r.idrayon INNER JOIN tbprov p ON r.idprov=p.idprov");
-		$dt = mysqli_fetch_array($sqlad0);
+		$sqlad0 = "SELECT a.idjenjang, j.akjenjang, a.nmskpd, a.kec, r.nmrayon, p.nmprov FROM tbskul a INNER JOIN tbjenjang j ON j.idjenjang=a.idjenjang INNER JOIN tbrayon r ON a.idrayon=r.idrayon INNER JOIN tbprov p ON r.idprov=p.idprov";
+		$dt = vquery($sqlad0)[0];
 		$nmjenjang = $dt['akjenjang'];
 		if ($nmjenjang == 'SMA' || $nmjenjang == 'SMK') {
 			$nmtmp = strtoupper($dt['nmskpd'] . ' provinsi ' . $dt['nmprov']);
@@ -175,7 +168,7 @@ class PDF extends FPDF
 
 	function IsiData($id, $hal, $uji)
 	{
-
+		$this->SetFont('Arial', '', '10');
 		if ($hal == 1) {
 			$opset = 0;
 		} else {
